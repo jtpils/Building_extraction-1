@@ -7,7 +7,7 @@ import geocoder
 from selenium import webdriver
 from Building_extractor_MP import merc_x, merc_y, building_image, image2features
 from selenium.webdriver.chrome.options import Options
-#12312312312312
+
 
 def address2latlon(addr):
     """
