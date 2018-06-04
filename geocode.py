@@ -67,7 +67,7 @@ def geocode_shapefile(in_shapefile, out_shapefile):
 
 
 if __name__ == "__main__":
-    inShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Sorel_clip.shp"
-    outShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/geocoded_copySorel.shp"
+    inShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/BV_Richelieu.shp"
+    outShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/BV_Richelieu_geocode.shp"
 
     geocode_shapefile(inShapefile, outShapefile)
