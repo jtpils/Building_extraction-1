@@ -70,8 +70,8 @@ def scan(lat, lon_s, lon_e, n):
         if point.within(shp_geom):
             url = "https://www.google.ca/maps/@%f,%f,21z?hl=en-US" % (lat, lon_s)
             driver.get(url)
-            screenshot_path = "E:/Charles_Tousignant/Python_workspace/Gari/screenshots/screenshot{}.png".format(counter_screenshots + 1 + n*1000000)
-            # screenshot_path = "E:/Charles_Tousignant/Python_workspace/Gari/screenshots/screenshot.png"
+            # screenshot_path = "E:/Charles_Tousignant/Python_workspace/Gari/screenshots/screenshot{}.png".format(counter_screenshots + 1 + n*1000000) # Pour enregistrer toutes les images
+            screenshot_path = "E:/Charles_Tousignant/Python_workspace/Gari/screenshots/screenshot.png"
             driver.save_screenshot(screenshot_path)
             image_google = cv.imread(screenshot_path)
             image_bat = building_image(image_google)
