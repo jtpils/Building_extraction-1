@@ -69,7 +69,7 @@ def digue(in_lines, in_raster):
     arcpy.sa.ExtractValuesToPoints(allPts, in_raster, allPtsZ, 'INTERPOLATE')
     print datetime.datetime.now() - start
 
-    raw_input()
+    raw_input(
     OIDname_in_lines_copy = arcpy.Describe(in_lines_copy).OIDFieldname
     arcpy.AddField_management(in_lines_copy, 'Volume', 'FLOAT')
     arcpy.AddField_management(in_lines_copy, 'Nb_Sacs', 'INTEGER')
