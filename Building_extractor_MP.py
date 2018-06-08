@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
+# ---------------------------------------------------------------------------
+# Building_extractor_MP.py
+# Created on: 2018-05-22
+# Author : Charles Tousignant
+# Project : GARI
+# Description : Extraction des empreintes de bâtiments automatisée sur
+# Google Maps (version Multiprocess)
+# ---------------------------------------------------------------------------
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import multiprocessing
@@ -22,8 +30,6 @@ def final_shapefile(n):
     shapefile_list = filter(None, shapefile_list)  # remove None values from list
     building_footprint0 = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint0.shp"
     building_footprint = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint.shp"  # final shapefile
-    if arcpy.Exists(building_footprint):  # delete shapefile if it already exists
-        arcpy.Delete_management(building_footprint)
 
     print("Creating final shapefile...")
     print("Merging all previously created shapefiles...")
@@ -33,19 +39,21 @@ def final_shapefile(n):
     print("Merging complete.                                                                       {}".format(elapsed_time()))
 
     print("Aggregating polygons...")
+    arcpy.env.overwriteOutput = True
     #  AggregatePolygons(in_features, out_feature_class, aggregation_distance, {minimum_area}, {minimum_hole_size}, {orthogonality_option}, {barrier_features}, {out_table})
     ca.AggregatePolygons(building_footprint0, building_footprint, 0.01, 2, 2, "ORTHOGONAL", "")
     arcpy.Delete_management(building_footprint0)
     print("Final shapefile complete.                                                               {}".format(elapsed_time()))
 
 
-def scan(lat, lon_s, lon_e, n):
+def scan(lat, lon_s, lon_e, n, contour_buffer):
     """
     Scan a region at a given latitude and create a shapefile if building footprints were detected
     :param lat: (float) Latitude
     :param lon_s: (float) starting longitude
     :param lon_e: (float) ending longitude
     :param n: (int) number of the process
+    :param contour_buffer: (string) path of contour buffer shapefile (must be projected in GCS_WGS_1984)
     """
     print("Process {}: Taking screenshots...".format(n))
     options = Options()
@@ -60,8 +68,8 @@ def scan(lat, lon_s, lon_e, n):
 
     counter_screenshots = 0  # for counting number of screenshots
     feat = []
-    shapefile_contour_buffer_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Bassin_versant/Bassin_versant_SJSR_buffer.shp"
-    zone = fiona.open(shapefile_contour_buffer_path)
+
+    zone = fiona.open(contour_buffer)
     polygon = zone.next()
     zone.close()
     shp_geom = shape(polygon['geometry'])
@@ -70,8 +78,8 @@ def scan(lat, lon_s, lon_e, n):
         if point.within(shp_geom):
             url = "https://www.google.ca/maps/@%f,%f,21z?hl=en-US" % (lat, lon_s)
             driver.get(url)
-            # screenshot_path = "E:/Charles_Tousignant/Python_workspace/Gari/screenshots/screenshot{}.png".format(counter_screenshots + 1 + n*1000000) # Pour enregistrer toutes les images
-            screenshot_path = "E:/Charles_Tousignant/Python_workspace/Gari/screenshots/screenshot.png"
+            screenshot_path = "E:/Charles_Tousignant/Python_workspace/Gari/screenshots/screenshot{}.png".format(counter_screenshots + 1 + n*1000000) # Pour enregistrer toutes les images
+            #screenshot_path = "E:/Charles_Tousignant/Python_workspace/Gari/screenshots/screenshot.png"
             driver.save_screenshot(screenshot_path)
             image_google = cv.imread(screenshot_path)
             image_bat = building_image(image_google)
@@ -91,13 +99,14 @@ def scan(lat, lon_s, lon_e, n):
         print("Process {}: No building were detected. No shapefile will be created for this process".format(n))
 
 
-def start_process(lat_s, lon_s, lat_e, lon_e):
+def start_process(lat_s, lon_s, lat_e, lon_e, contour):
     """
     Divide the bounding box in different regions and start one process for each region
     :param lat_s: (float) starting Latitude
     :param lon_s: (float) starting longitude
     :param lat_e: (float) ending latitude
     :param lon_e: (float) ending longitude
+    :param contour: (string) path of contour shapefile (must be projected in GCS_WGS_1984)
     :return n: (int) number of total processes
     """
     global shapefile_list
@@ -105,10 +114,12 @@ def start_process(lat_s, lon_s, lat_e, lon_e):
     n = int(delta_lat/CONST_dlat)
     print("Multiprocessing building extraction. Task will be split in {} different processes.".format(n))
 
-    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Bassin_versant/Bassin_versant_SJSR.shp"
-    shapefile_contour_buffer_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Bassin_versant/Bassin_versant_SJSR_buffer.shp"
-    if not arcpy.Exists(shapefile_contour_buffer_path):  # create buffer shapefile if it does not exists
-        arcpy.Buffer_analysis(shapefile_contour_path, shapefile_contour_buffer_path, "100 meters")
+    arcpy.env.workspace = arcpy.Describe(contour).path
+    contour_name = arcpy.Describe(contour).baseName
+    contour_buffer = "{0}_buffer.shp".format(contour_name)
+
+    if not arcpy.Exists(contour_buffer):  # create buffer shapefile if it does not exists
+        arcpy.Buffer_analysis(contour, contour_buffer, "100 meters")
 
     bbox = []
     for i in range(n):
@@ -116,22 +127,24 @@ def start_process(lat_s, lon_s, lat_e, lon_e):
 
     core_number = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(core_number)  # use all available cores, otherwise specify the number you want as an argument
-    results = [pool.apply_async(scan, args=(bbox[i], lon_s, lon_e, i+1)) for i in range(0, n)]
+    results = [pool.apply_async(scan, args=(bbox[i], lon_s, lon_e, i+1, contour)) for i in range(0, n)]
     shapefile_list = [p.get() for p in results]
 
     pool.close()
     pool.join()
+    arcpy.Delete_management(contour_buffer)
     return n
 
 
-def main(lat_s, lon_s, lat_e, lon_e):
+def main(lat_s, lon_s, lat_e, lon_e, contour):
     """
     Main function. Scan the bounding box and creates a shapefile containing all the detected building footprints
     """
-    num = start_process(lat_s, lon_s, lat_e, lon_e)
+    num = start_process(lat_s, lon_s, lat_e, lon_e, contour)
     final_shapefile(num)
 
 
 if __name__ == "__main__":
-    main(CONST_lat_s3, CONST_lon_s3, CONST_lat_e3, CONST_lon_e3)
+    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Bassin_versant/Bassin_versant_PN.shp"  # (must be projected in GCS_WGS_1984)
+    main(CONST_lat_s16, CONST_lon_s16, CONST_lat_e16, CONST_lon_e16, shapefile_contour_path)
 

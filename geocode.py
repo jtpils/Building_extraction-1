@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
+# ---------------------------------------------------------------------------
+# geocode.py
+# Created on: 2018-05-25
+# Author : Charles Tousignant
+# Project : GARI
+# Description : Géocade automatique des addresses de tout les bâtiments d'un
+# shapefile. Entre les addresses dans différents champs de la table attributaire
+# ---------------------------------------------------------------------------
 import sys
 import geocoder
 import ogr
@@ -7,7 +15,7 @@ from Utils_MP import *
 
 
 def latlon2address(lat, lon):
-    b = geocoder.bing([lat, lon], method="reverse", key="AigfUkIm24vYk0sWgbUwgBv5klsfc5tAwFArERnDcr39MnTbPS5WE9ZRko8WiMgc")
+    b = geocoder.bing([lat, lon], method="reverse", key="AigfUkIm24vYk0sWgbUwgBv5klsfc5tAwFArERnDcr39MnTbPS5WE9ZRko8WiMgc")  # besoin d'une nouvelle clé, celle-ci a atteint son quota
     timeout = time.time() + 7
     while b.city is None:
         b = geocoder.bing([lat, lon], method="reverse", key="AigfUkIm24vYk0sWgbUwgBv5klsfc5tAwFArERnDcr39MnTbPS5WE9ZRko8WiMgc")
