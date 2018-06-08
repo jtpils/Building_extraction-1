@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
+# ---------------------------------------------------------------------------
+# Building_extractor_MP.py
+# Created on: 2018-05-22
+# Author : Charles Tousignant
+# Project : GARI
+# Description : Extraction des empreintes de bâtiments automatisée sur
+# Google Maps (version Multiprocess)
+# ---------------------------------------------------------------------------
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import multiprocessing
@@ -22,8 +30,6 @@ def final_shapefile(n):
     shapefile_list = filter(None, shapefile_list)  # remove None values from list
     building_footprint0 = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint0.shp"
     building_footprint = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint.shp"  # final shapefile
-    if arcpy.Exists(building_footprint):  # delete shapefile if it already exists
-        arcpy.Delete_management(building_footprint)
 
     print("Creating final shapefile...")
     print("Merging all previously created shapefiles...")
@@ -33,6 +39,7 @@ def final_shapefile(n):
     print("Merging complete.                                                                       {}".format(elapsed_time()))
 
     print("Aggregating polygons...")
+    arcpy.env.overwriteOutput = True
     #  AggregatePolygons(in_features, out_feature_class, aggregation_distance, {minimum_area}, {minimum_hole_size}, {orthogonality_option}, {barrier_features}, {out_table})
     ca.AggregatePolygons(building_footprint0, building_footprint, 0.01, 2, 2, "ORTHOGONAL", "")
     arcpy.Delete_management(building_footprint0)
@@ -70,8 +77,8 @@ def scan(lat, lon_s, lon_e, n):
         if point.within(shp_geom):
             url = "https://www.google.ca/maps/@%f,%f,21z?hl=en-US" % (lat, lon_s)
             driver.get(url)
-            # screenshot_path = "E:/Charles_Tousignant/Python_workspace/Gari/screenshots/screenshot{}.png".format(counter_screenshots + 1 + n*1000000) # Pour enregistrer toutes les images
-            screenshot_path = "E:/Charles_Tousignant/Python_workspace/Gari/screenshots/screenshot.png"
+            screenshot_path = "E:/Charles_Tousignant/Python_workspace/Gari/screenshots/screenshot{}.png".format(counter_screenshots + 1 + n*1000000) # Pour enregistrer toutes les images
+            #screenshot_path = "E:/Charles_Tousignant/Python_workspace/Gari/screenshots/screenshot.png"
             driver.save_screenshot(screenshot_path)
             image_google = cv.imread(screenshot_path)
             image_bat = building_image(image_google)
@@ -133,5 +140,5 @@ def main(lat_s, lon_s, lat_e, lon_e):
 
 
 if __name__ == "__main__":
-    main(CONST_lat_s3, CONST_lon_s3, CONST_lat_e3, CONST_lon_e3)
+    main(CONST_lat_s15, CONST_lon_s15, CONST_lat_e15, CONST_lon_e15)
 

@@ -1,4 +1,11 @@
 # -*- coding: utf-8 -*-
+# ---------------------------------------------------------------------------
+# Bounding_box.py
+# Created on: 2018-05-25
+# Author : Charles Tousignant
+# Project : GARI
+# Description : Fichier de création des secteurs à extraire pour Building_extractor_MP.py
+# ---------------------------------------------------------------------------
 
 # CREATE BOUNDING BOX HERE (starting south-west corner; ending north-east corner):
 
@@ -75,4 +82,28 @@ CONST_lat_s14 = 45.003161  # starting latitude
 CONST_lon_s14 = -73.609889  # starting longitude
 CONST_lat_e14 = 45.266972  # ending latitude
 CONST_lon_e14 = -72.948364  # ending longitude
+
+
+#######################################################
+# PRODUCTION : BASSIN VERSANT DE LA PETITE-NATION #
+#######################################################
+
+# COMPLET
+CONST_lat_s15 = 45.565028  # starting latitude
+CONST_lon_s15 = -75.374958  # starting longitude
+CONST_lat_e15 = 47.106742  # ending latitude
+CONST_lon_e15 = -74.262042  # ending longitude
+
+# SUD
+CONST_lat_s15 = 45.565028  # starting latitude
+CONST_lon_s15 = -75.374958  # starting longitude
+CONST_lat_e15 = 46.335885  # ending latitude
+CONST_lon_e15 = -74.262042  # ending longitude
+
+# NORD
+CONST_lat_s15 = 46.335400  # starting latitude
+CONST_lon_s15 = -75.374958  # starting longitude
+CONST_lat_e15 = 47.106742  # ending latitude
+CONST_lon_e15 = -74.262042  # ending longitude
+
 

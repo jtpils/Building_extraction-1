@@ -1,4 +1,11 @@
 # -*- coding: utf-8 -*-
+# ---------------------------------------------------------------------------
+# Building_locator.py
+# Created on: 2018-05-26
+# Author : Charles Tousignant
+# Project : GARI
+# Description : Extraction de l'emprunte d'un bâtiment selon son addresse
+# ---------------------------------------------------------------------------
 import sys
 import time
 import arcpy
