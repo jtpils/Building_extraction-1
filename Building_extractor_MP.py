@@ -46,13 +46,14 @@ def final_shapefile(n):
     print("Final shapefile complete.                                                               {}".format(elapsed_time()))
 
 
-def scan(lat, lon_s, lon_e, n):
+def scan(lat, lon_s, lon_e, n, contour_buffer):
     """
     Scan a region at a given latitude and create a shapefile if building footprints were detected
     :param lat: (float) Latitude
     :param lon_s: (float) starting longitude
     :param lon_e: (float) ending longitude
     :param n: (int) number of the process
+    :param contour_buffer: (string) path of contour buffer shapefile (must be projected in GCS_WGS_1984)
     """
     print("Process {}: Taking screenshots...".format(n))
     options = Options()
@@ -67,8 +68,8 @@ def scan(lat, lon_s, lon_e, n):
 
     counter_screenshots = 0  # for counting number of screenshots
     feat = []
-    shapefile_contour_buffer_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Bassin_versant/Bassin_versant_SJSR_buffer.shp"
-    zone = fiona.open(shapefile_contour_buffer_path)
+
+    zone = fiona.open(contour_buffer)
     polygon = zone.next()
     zone.close()
     shp_geom = shape(polygon['geometry'])
@@ -98,13 +99,14 @@ def scan(lat, lon_s, lon_e, n):
         print("Process {}: No building were detected. No shapefile will be created for this process".format(n))
 
 
-def start_process(lat_s, lon_s, lat_e, lon_e):
+def start_process(lat_s, lon_s, lat_e, lon_e, contour):
     """
     Divide the bounding box in different regions and start one process for each region
     :param lat_s: (float) starting Latitude
     :param lon_s: (float) starting longitude
     :param lat_e: (float) ending latitude
     :param lon_e: (float) ending longitude
+    :param contour: (string) path of contour shapefile (must be projected in GCS_WGS_1984)
     :return n: (int) number of total processes
     """
     global shapefile_list
@@ -112,10 +114,12 @@ def start_process(lat_s, lon_s, lat_e, lon_e):
     n = int(delta_lat/CONST_dlat)
     print("Multiprocessing building extraction. Task will be split in {} different processes.".format(n))
 
-    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Bassin_versant/Bassin_versant_SJSR.shp"
-    shapefile_contour_buffer_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Bassin_versant/Bassin_versant_SJSR_buffer.shp"
-    if not arcpy.Exists(shapefile_contour_buffer_path):  # create buffer shapefile if it does not exists
-        arcpy.Buffer_analysis(shapefile_contour_path, shapefile_contour_buffer_path, "100 meters")
+    arcpy.env.workspace = arcpy.Describe(contour).path
+    contour_name = arcpy.Describe(contour).baseName
+    contour_buffer = "{0}_buffer.shp".format(contour_name)
+
+    if not arcpy.Exists(contour_buffer):  # create buffer shapefile if it does not exists
+        arcpy.Buffer_analysis(contour, contour_buffer, "100 meters")
 
     bbox = []
     for i in range(n):
@@ -123,22 +127,24 @@ def start_process(lat_s, lon_s, lat_e, lon_e):
 
     core_number = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(core_number)  # use all available cores, otherwise specify the number you want as an argument
-    results = [pool.apply_async(scan, args=(bbox[i], lon_s, lon_e, i+1)) for i in range(0, n)]
+    results = [pool.apply_async(scan, args=(bbox[i], lon_s, lon_e, i+1, contour)) for i in range(0, n)]
     shapefile_list = [p.get() for p in results]
 
     pool.close()
     pool.join()
+    arcpy.Delete_management(contour_buffer)
     return n
 
 
-def main(lat_s, lon_s, lat_e, lon_e):
+def main(lat_s, lon_s, lat_e, lon_e, contour):
     """
     Main function. Scan the bounding box and creates a shapefile containing all the detected building footprints
     """
-    num = start_process(lat_s, lon_s, lat_e, lon_e)
+    num = start_process(lat_s, lon_s, lat_e, lon_e, contour)
     final_shapefile(num)
 
 
 if __name__ == "__main__":
-    main(CONST_lat_s15, CONST_lon_s15, CONST_lat_e15, CONST_lon_e15)
+    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Bassin_versant/Bassin_versant_PN.shp"  # (must be projected in GCS_WGS_1984)
+    main(CONST_lat_s16, CONST_lon_s16, CONST_lat_e16, CONST_lon_e16, shapefile_contour_path)
 

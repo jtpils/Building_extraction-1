@@ -136,8 +136,8 @@ def create_convex_hull(in_fc, grouping_field=None):
 def line_creator(in_bat):
     arcpy.env.workspace = arcpy.Describe(in_bat).path
     arcpy.env.overwriteOutput = True
-    dissolve_buf = r"E:\Charles_Tousignant\Python_workspace\Gari\shapefile\Digues\dissolve_buf.shp"
-    CHdissolve_buf = r"E:\Charles_Tousignant\Python_workspace\Gari\shapefile\Digues\ConvexHulldissolve_buf.shp"
+    dissolve_buf = "dissolve_buf.shp"
+    CHdissolve_buf = "ConvexHulldissolve_buf.shp"
 
     tmp_buf = arcpy.Buffer_analysis(in_features=in_bat,
                                     out_feature_class=r"in_memory\tempOutput",
