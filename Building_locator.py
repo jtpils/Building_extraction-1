@@ -43,13 +43,11 @@ def localize_point(lat, lon):
     return arcpy.PointGeometry(arcpy.Point(merc_x(lon), merc_y(lat)))
 
 
-def main():
+def main(adr):
     """
     Main function. Create a shapefile of the building footprint for the address entered by the user.
     """
-    address = raw_input(
-        "Entrez l'adresse du bâtiment à extraire (par exemple: 165 rue de Liège, St-jean-sur-Richelieu, Québec)")
-    coord = address2latlon(address)
+    coord = address2latlon(adr)
     lat = coord[0]
     lon = coord[1]
 
@@ -97,7 +95,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    address = raw_input(
+        "Entrez l'adresse du bâtiment à extraire (par exemple: 165 rue de Liège, St-jean-sur-Richelieu, Québec)")
+    main(address)
     # a = '165 rue de Liege, St-jean-sur-Richelieu, Quebec'  # point pas dans le polygone
     # b = "116 rue de Liege, St-jean-sur-Richelieu, Quebec"  # point dans le polygone
     # c = "107 rue de Liege, St-jean-sur-Richelieu, Quebec"  # point pas dans le polygone

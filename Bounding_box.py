@@ -97,7 +97,7 @@ CONST_lon_e15 = -74.262042  # ending longitude
 # SUD
 CONST_lat_s16 = 45.565028  # starting latitude
 CONST_lon_s16 = -75.374958  # starting longitude
-CONST_lat_e16 = 46.335885  # ending latitude
+CONST_lat_e16 = 46.335900  # ending latitude
 CONST_lon_e16 = -74.262042  # ending longitude
 
 # NORD
@@ -105,5 +105,11 @@ CONST_lat_s17 = 46.335400  # starting latitude
 CONST_lon_s17 = -75.374958  # starting longitude
 CONST_lat_e17 = 47.106742  # ending latitude
 CONST_lon_e17 = -74.262042  # ending longitude
+
+# ZONE 1
+CONST_lat_s18 = 45.565028  # starting latitude
+CONST_lon_s18 = -75.374958  # starting longitude
+CONST_lat_e18 = 45.813675  # ending latitude
+CONST_lon_e18 = -74.460386  # ending longitude
 
 
