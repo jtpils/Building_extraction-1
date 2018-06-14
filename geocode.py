@@ -4,7 +4,7 @@
 # Created on: 2018-05-25
 # Author : Charles Tousignant
 # Project : GARI
-# Description : Géocade automatique des addresses de tout les bâtiments d'un
+# Description : Géocode automatique des addresses de tout les bâtiments d'un
 # shapefile. Entre les addresses dans différents champs de la table attributaire
 # ---------------------------------------------------------------------------
 import sys
@@ -15,18 +15,28 @@ from Utils_MP import *
 
 
 def latlon2address(lat, lon):
-    b = geocoder.bing([lat, lon], method="reverse", key="AigfUkIm24vYk0sWgbUwgBv5klsfc5tAwFArERnDcr39MnTbPS5WE9ZRko8WiMgc")  # besoin d'une nouvelle clé, celle-ci a atteint son quota
+    """
+    Reverse geocoding from coordinates to addresses
+    :param lat: (float) latitude
+    :param lon: (float) longitude
+    :return n: (tuple) address of coordinate (address, street, city, state, postal, country)
+    """
+    b = geocoder.bing([lat, lon], method="reverse", key="AjVyhHv7lq__hT5_XLZ8jU0WbQpUIEUhQ7_nlHDw9NlcID9jRJDYLSSkIQmuQJ82")  # quota de 125 000 requêtes/année
     timeout = time.time() + 7
     while b.city is None:
-        b = geocoder.bing([lat, lon], method="reverse", key="AigfUkIm24vYk0sWgbUwgBv5klsfc5tAwFArERnDcr39MnTbPS5WE9ZRko8WiMgc")
+        b = geocoder.bing([lat, lon], method="reverse", key="AjVyhHv7lq__hT5_XLZ8jU0WbQpUIEUhQ7_nlHDw9NlcID9jRJDYLSSkIQmuQJ82")
         if b.city is None and time.time() > timeout:  # if google can't find the address after a certain amount of time
             sys.exit("Bing ne trouve pas d'adresse, veuillez réessayer")
     #return b.address, b.housenumber, b.street, b.city, b.state, b.postal, b.country
-    return b. address, b.street, b.city, b.state, b.postal, b.country
+    return b.address, b.street, b.city, b.state, b.postal, b.country
 
 
 def geocode_shapefile(in_shapefile, out_shapefile):
-
+    """
+    create and calculate attributary table fields for buildings addresses
+    :param in_shapefile: (string) input building shapefile
+    :param out_shapefile: (string) output building shapefile
+    """
     # make a copy of the input shapefile
     if arcpy.Exists(out_shapefile):
         arcpy.Delete_management(out_shapefile)
@@ -74,8 +84,19 @@ def geocode_shapefile(in_shapefile, out_shapefile):
             print("{} buildings geolocalized.       {}".format(i, elapsed_time()))
 
 
-if __name__ == "__main__":
-    inShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/BV_Richelieu.shp"
-    outShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/BV_Richelieu_geocode.shp"
-
+def main():
+    """
+    Main function.
+    Change the path of inShapefile and outShapefile for the desired building shapefile to geocode.
+    """
+    inShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/BV_PetiteNation.shp"
+    outShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/BV_PetiteNation_geocode.shp"
     geocode_shapefile(inShapefile, outShapefile)
+
+
+if __name__ == "__main__":
+    main()
+    print("##############################")
+    print("Building shapefile reverse geocode complete!")
+    print(elapsed_time())
+    print("##############################")
