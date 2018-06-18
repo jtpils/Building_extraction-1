@@ -92,9 +92,9 @@ def scan(lat, lon_s, lon_e, n, contour_buffer):
     lenfeat = len(feat)
     if lenfeat != 0:  # create shapefile if at least one building is detected
         print("Process {}: Creating shapefile #{}...                                                     {}".format(n, n, elapsed_time()))
-        shapefile_name = shapefile_creator(feat, n)
+        shapefile_path = shapefile_creator(feat, n)
         print("Process {}: For shapefile #{}, building footprints were extracted from {} screenshots.     {}".format(n, n, counter_screenshots, elapsed_time()))
-        return shapefile_name
+        return shapefile_path
     else:
         print("Process {}: No building were detected. No shapefile will be created for this process".format(n))
 

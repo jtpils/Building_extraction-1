@@ -109,6 +109,7 @@ def shapefile_creator(features, n):
     Create a shapefile with a list of Polygon objects, aggregate overlaping buildings and project
     :param n: (int) number of shapefiles to create
     :param features: (list) List of Polygon objects
+    :return (string) path of shapefile
     """
     building_footprint_1 = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_1_{}.shp".format(n)
     building_footprint_2 = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_2_{}.shp".format(n)
@@ -116,17 +117,18 @@ def shapefile_creator(features, n):
 
     arcpy.CopyFeatures_management(features, building_footprint_1)
 
-    #  Aggregate overlaping buildings
-    #  AggregatePolygons(in_features, out_feature_class, aggregation_distance, {minimum_area}, {minimum_hole_size}, {orthogonality_option}, {barrier_features}, {out_table})
-    ca.AggregatePolygons(building_footprint_1, building_footprint_2, 0.01, 2, 2, "ORTHOGONAL", "")
-    arcpy.Delete_management(building_footprint_1)
-
     #  project
     sr = arcpy.SpatialReference(3857)  # WGS_1984_Web_Mercator_Auxiliary_Sphere
-    arcpy.DefineProjection_management(building_footprint_2, sr)  # Define Projection
+    arcpy.DefineProjection_management(building_footprint_1, sr)  # Define Projection
     sr2 = arcpy.SpatialReference(2950)  # NAD_1983_CSRS_MTM_8
-    arcpy.Project_management(building_footprint_2, building_footprint_z21, sr2)  # Project
+    arcpy.Project_management(building_footprint_1, building_footprint_2, sr2)  # Project
+    arcpy.Delete_management(building_footprint_1)
+
+    #  Aggregate overlaping buildings
+    #  AggregatePolygons(in_features, out_feature_class, aggregation_distance, {minimum_area}, {minimum_hole_size}, {orthogonality_option}, {barrier_features}, {out_table})
+    ca.AggregatePolygons(building_footprint_2, building_footprint_z21, 0.01, 2, 2, "ORTHOGONAL", "")
     arcpy.Delete_management(building_footprint_2)
+
     return building_footprint_z21
 
 
