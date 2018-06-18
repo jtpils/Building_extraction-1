@@ -116,7 +116,7 @@ def start_process(lat_s, lon_s, lat_e, lon_e, contour):
 
     arcpy.env.workspace = arcpy.Describe(contour).path
     contour_name = arcpy.Describe(contour).baseName
-    contour_buffer = "{0}_buffer.shp".format(contour_name)
+    contour_buffer = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Bassin_versant/{0}_buffer.shp".format(contour_name)
 
     if not arcpy.Exists(contour_buffer):  # create buffer shapefile if it does not exists
         arcpy.Buffer_analysis(contour, contour_buffer, "100 meters")
@@ -127,7 +127,7 @@ def start_process(lat_s, lon_s, lat_e, lon_e, contour):
 
     core_number = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(core_number)  # use all available cores, otherwise specify the number you want as an argument
-    results = [pool.apply_async(scan, args=(bbox[i], lon_s, lon_e, i+1, contour)) for i in range(0, n)]
+    results = [pool.apply_async(scan, args=(bbox[i], lon_s, lon_e, i+1, contour_buffer)) for i in range(0, n)]
     shapefile_list = [p.get() for p in results]
 
     pool.close()
@@ -147,5 +147,5 @@ def main(lat_s, lon_s, lat_e, lon_e, contour):
 if __name__ == "__main__":
     shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Bassin_versant/Bassin_versant_SJSR.shp"  # (must be projected in GCS_WGS_1984)
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Bassin_versant/Bassin_versant_PN.shp"  # (must be projected in GCS_WGS_1984)
-    main(CONST_lat_s3, CONST_lon_s3, CONST_lat_e3, CONST_lon_e3, shapefile_contour_path)
+    main(CONST_lat_s6, CONST_lon_s6, CONST_lat_e6, CONST_lon_e6, shapefile_contour_path)
 
