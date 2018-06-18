@@ -40,7 +40,6 @@ def final_shapefile(n):
 
     print("Aggregating polygons...")
     arcpy.env.overwriteOutput = True
-    #  AggregatePolygons(in_features, out_feature_class, aggregation_distance, {minimum_area}, {minimum_hole_size}, {orthogonality_option}, {barrier_features}, {out_table})
     ca.AggregatePolygons(building_footprint0, building_footprint, 0.01, 2, 2, "ORTHOGONAL", "")
     arcpy.Delete_management(building_footprint0)
     print("Final shapefile complete.                                                               {}".format(elapsed_time()))
@@ -79,7 +78,6 @@ def scan(lat, lon_s, lon_e, n, contour_buffer):
             url = "https://www.google.ca/maps/@%f,%f,21z?hl=en-US" % (lat, lon_s)
             driver.get(url)
             screenshot_path = "E:/Charles_Tousignant/Python_workspace/Gari/screenshots/screenshot{}.png".format(counter_screenshots + 1 + n*1000000) # Pour enregistrer toutes les images
-            #screenshot_path = "E:/Charles_Tousignant/Python_workspace/Gari/screenshots/screenshot.png"
             driver.save_screenshot(screenshot_path)
             image_google = cv.imread(screenshot_path)
             image_bat = building_image(image_google)
