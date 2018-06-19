@@ -83,7 +83,6 @@ CONST_lon_s14 = -73.609889  # starting longitude
 CONST_lat_e14 = 45.266972  # ending latitude
 CONST_lon_e14 = -72.948364  # ending longitude
 
-
 #######################################################
 # PRODUCTION : BASSIN VERSANT DE LA PETITE-NATION #  MTM ZONE 8
 #######################################################
@@ -111,5 +110,3 @@ CONST_lat_s18 = 45.565028  # starting latitude
 CONST_lon_s18 = -75.374958  # starting longitude
 CONST_lat_e18 = 45.813675  # ending latitude
 CONST_lon_e18 = -74.460386  # ending longitude
-
-

@@ -144,6 +144,6 @@ def main(lat_s, lon_s, lat_e, lon_e, contour):
 
 if __name__ == "__main__":
     shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Bassin_versant/Bassin_versant_SJSR.shp"  # (must be projected in GCS_WGS_1984)
-    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Bassin_versant/Bassin_versant_PN.shp"  # (must be projected in GCS_WGS_1984)
-    main(CONST_lat_s6, CONST_lon_s6, CONST_lat_e6, CONST_lon_e6, shapefile_contour_path)
+    #shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Bassin_versant/Bassin_versant_PN.shp"  # (must be projected in GCS_WGS_1984)
+    main(CONST_lat_s, CONST_lon_s, CONST_lat_e, CONST_lon_e, shapefile_contour_path)
 
