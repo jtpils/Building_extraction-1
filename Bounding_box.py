@@ -55,6 +55,18 @@ CONST_lon_s7 = -73.124723  # starting longitude
 CONST_lat_e7 = 46.009650  # ending latitude
 CONST_lon_e7 = -73.118092  # ending longitude
 
+# Secteur test aeroport la macaza
+CONST_lat_s19 = 46.408162  # starting latitude
+CONST_lon_s19 = -74.787901  # starting longitude
+CONST_lat_e19 = 46.413534  # ending latitude
+CONST_lon_e19 = -74.773443  # ending longitude
+
+# Secteur test l'annonciation
+CONST_lat_s20 = 46.413872  # starting latitude
+CONST_lon_s20 = -74.877076  # starting longitude
+CONST_lat_e20 = 46.416437  # ending latitude
+CONST_lon_e20 = -74.871200  # ending longitude
+
 #######################################################
 # PRODUCTION : BASSIN VERSANT DE LA RIVIÈRE RICHELIEU #  MTM ZONE 8
 #######################################################
@@ -93,7 +105,7 @@ CONST_lon_s15 = -75.374958  # starting longitude
 CONST_lat_e15 = 47.106742  # ending latitude
 CONST_lon_e15 = -74.262042  # ending longitude
 
-# SUD
+# SUD           349 641 photos           7200 km2     FAIT 1J 22h 22m
 CONST_lat_s16 = 45.565028  # starting latitude
 CONST_lon_s16 = -75.374958  # starting longitude
 CONST_lat_e16 = 46.335900  # ending latitude

@@ -1,45 +1,47 @@
 # # -*- coding: utf-8 -*-
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from Utils_MP import *
+from PIL import Image
+from io import BytesIO
+import numpy as np
 
-import geocoder
+feat = []
 
-g = geocoder.bing([45.306154, -73.258873], method="elevation", key="AigfUkIm24vYk0sWgbUwgBv5klsfc5tAwFArERnDcr39MnTbPS5WE9ZRko8WiMgc")
-print (g)
+image_path = "E:\Charles_Tousignant\Python_workspace\Gari\screenshots\imagetest.png"
+image = cv.imread(image_path)
+img_bat = building_image(image)
+#tracer_contour(img_bat, image)
+image2features(img_bat, feat, 45, -73)
 
-print g.meters
+shapefile_creator(feat,1)
 
-
-
-
-# import fiona
-# from shapely.geometry import shape
+# options = Options()
+# options.add_argument('--headless')
+# options.add_argument('--disable-gpu')
+# options.add_argument('start-maximized')
+# options.add_argument('disable-infobars')
+# options.add_argument("--disable-extensions")
+# options.add_argument('--no-sandbox')
+# driver = webdriver.Chrome("E:/Charles_Tousignant/Python_workspace/Gari/chromedriver", chrome_options=options)
+# driver.set_window_size(2418, 2000)
+# feat = []
 #
-# bv = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Bassin_versant/Bassin_versant_SJSR_buffer.shp"
-# munic = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/limite_municipalite/CAN_adm3_Clip.shp"
-# zone = fiona.open(munic)
+# url = "https://www.google.ca/maps/@46.1551014,-74.6953247,21z?hl=en-US"
+# driver.get(url)
 #
-# polygon = next(zone)
-# polygon2 = zone.next()  # meme chose
 #
-# shp_geom = shape(polygon['geometry'])
-# shp_geom2 = shape(polygon2['geometry'])
 #
-# print shp_geom
-# print shp_geom2
+# png = driver.get_screenshot_as_png()
+# im = Image.open(BytesIO(png))  # uses PIL library to open image in memory
+# im = im.crop((418, 0, 2418, 2000))  # defines crop points
+# im.save("E:/Charles_Tousignant/Python_workspace/Gari/screenshots2/screenshotfff.png")  # saves new cropped image
 #
-# print(len(zone))
-# print(zone.bounds)  # bbox
-# print(shp_geom.bounds)  # bbox
+# image_bat = building_image(np.array(im))
+# image2features(image_bat, feat, 46.1551014, -74.6953247)
+# shapefile_creator(feat, 1)
 #
-# print polygon2["id"]
-
-
-
-
-
-
-
-# zone.close()
-
+# driver.quit()
 
 
 

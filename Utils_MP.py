@@ -31,7 +31,7 @@ def building_image(img_google):
     """
     img_gray = cv.cvtColor(img_google, cv.COLOR_BGR2GRAY)
 
-    ret, thresh1 = cv.threshold(img_gray, 235, 255, cv.THRESH_BINARY)  # with residential buildings 236
+    ret, thresh1 = cv.threshold(img_gray, 234, 255, cv.THRESH_BINARY)  # with residential buildings 236
     ret, thresh2 = cv.threshold(img_gray, 237, 255, cv.THRESH_BINARY)  # without residential buildings 237
     residentiel = thresh1 - thresh2  # residential buildings in white
 
@@ -40,7 +40,7 @@ def building_image(img_google):
     commercial = thresh3 - thresh4  # commercial buildings in white
 
     #  Erase white lines
-    minThick = 5  # Define minimum thickness
+    minThick = 15  # Define minimum thickness
     se = cv.getStructuringElement(cv.MORPH_ELLIPSE, (minThick, minThick))  # define a disk element
     img_bat = 255 * cv.morphologyEx(residentiel.astype('uint8'), cv.MORPH_OPEN, se)
     img_bat += 255 * cv.morphologyEx(commercial.astype('uint8'), cv.MORPH_OPEN, se)
@@ -54,7 +54,6 @@ def tracer_contour(img_bat, img_google):
     :param img_google: (RBG image) Screenshot image
     """
     im2, contours, hierarchy = cv.findContours(img_bat, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-
     # Tracer les contours
     cv.drawContours(img_google, contours, -1, (0, 255, 0), 3)
     # Tracer individuellement
@@ -76,7 +75,6 @@ def image2features(img_bat, features, lat, lon):
     """
     #  create contours
     im2, contours, hierarchy = cv.findContours(img_bat, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-
     # create array of points
     polygones = [[] for _ in contours]
     points = []
@@ -125,7 +123,6 @@ def shapefile_creator(features, n):
     arcpy.Delete_management(building_footprint_1)
 
     #  Aggregate overlaping buildings
-    #  AggregatePolygons(in_features, out_feature_class, aggregation_distance, {minimum_area}, {minimum_hole_size}, {orthogonality_option}, {barrier_features}, {out_table})
     ca.AggregatePolygons(building_footprint_2, building_footprint_z21, 0.01, 2, 2, "ORTHOGONAL", "")
     arcpy.Delete_management(building_footprint_2)
 
@@ -171,7 +168,7 @@ def translation(coord, lat, lon):
     :return coord: (list) List of Polygon points translated coordinates
     """
     ty = merc_y(lat) - 73.43  # Y translation  window size = 6000 : 222.72
-    tx = merc_x(lon) - 73.15  # X translation  window size = 6000 : 222.47
+    tx = merc_x(lon) - 57.55  #- 73.15  # X translation  window size = 6000 : 222.47
     for i in range(len(coord)):
         for j in range(len(coord[i])):
             coord[i][j][1] = coord[i][j][1] + ty

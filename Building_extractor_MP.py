@@ -15,6 +15,10 @@ from Bounding_box import *
 import fiona
 from shapely.geometry import Point
 from shapely.geometry import shape
+from PIL import Image
+from io import BytesIO
+import os
+import geocode
 
 CONST_dlat = 0.000882  # latitude difference between screenshots
 CONST_dlon = 0.001280  # longitude difference between screenshots
@@ -63,11 +67,10 @@ def scan(lat, lon_s, lon_e, n, contour_buffer):
     options.add_argument("--disable-extensions")
     options.add_argument('--no-sandbox')
     driver = webdriver.Chrome("E:/Charles_Tousignant/Python_workspace/Gari/chromedriver", chrome_options=options)
-    driver.set_window_size(2000, 2000)
+    driver.set_window_size(2418, 2000)
 
     counter_screenshots = 0  # for counting number of screenshots
     feat = []
-
     zone = fiona.open(contour_buffer)
     polygon = zone.next()
     zone.close()
@@ -77,12 +80,15 @@ def scan(lat, lon_s, lon_e, n, contour_buffer):
         if point.within(shp_geom):
             url = "https://www.google.ca/maps/@%f,%f,21z?hl=en-US" % (lat, lon_s)
             driver.get(url)
-            screenshot_path = "E:/Charles_Tousignant/Python_workspace/Gari/screenshots/screenshot{}.png".format(counter_screenshots + 1 + n*1000000) # Pour enregistrer toutes les images
-            driver.save_screenshot(screenshot_path)
-            image_google = cv.imread(screenshot_path)
-            image_bat = building_image(image_google)
+            png = driver.get_screenshot_as_png()
+            im = Image.open(BytesIO(png))  # uses PIL library to open image in memory
+            im = im.crop((418, 0, 2418, 2000))  # get rid of the left panel
+            im_path = "E:/Charles_Tousignant/Python_workspace/Gari/screenshots/screenshot{}.png".format(counter_screenshots + 1 + n*1000000)
+            im.save(im_path)
+            image_bat = building_image(cv.imread(im_path))
             print("Process {}: Detecting and extracting building footprints from screenshot #{}...           {}".format(n, counter_screenshots + 1, elapsed_time()))
             image2features(image_bat, feat, lat, lon_s)
+            os.remove(im_path)  # delete PNG
             counter_screenshots += 1
         lon_s += CONST_dlon
     driver.quit()
@@ -145,5 +151,11 @@ def main(lat_s, lon_s, lat_e, lon_e, contour):
 if __name__ == "__main__":
     shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Bassin_versant/Bassin_versant_SJSR.shp"  # (must be projected in GCS_WGS_1984)
     #shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Bassin_versant/Bassin_versant_PN.shp"  # (must be projected in GCS_WGS_1984)
-    main(CONST_lat_s, CONST_lon_s, CONST_lat_e, CONST_lon_e, shapefile_contour_path)
+    #main(CONST_lat_s19, CONST_lon_s19, CONST_lat_e19, CONST_lon_e19, shapefile_contour_path)
+    main(CONST_lat_s12, CONST_lon_s12, CONST_lat_e12, CONST_lon_e12, shapefile_contour_path)
+    geocode.main()
+
+
+
+    #main(CONST_lat_s2, CONST_lon_s2, CONST_lat_e2, CONST_lon_e2, shapefile_contour_path)
 
