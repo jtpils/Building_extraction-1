@@ -1,56 +1,93 @@
 # # -*- coding: utf-8 -*-
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from Utils_MP import *
-from PIL import Image
-from io import BytesIO
-import numpy as np
 
-feat = []
+import arcpy
+import ogr
+import osr
 
-image_path = "E:\Charles_Tousignant\Python_workspace\Gari\screenshots\imagetest.png"
-image = cv.imread(image_path)
-img_bat = building_image(image)
-#tracer_contour(img_bat, image)
-image2features(img_bat, feat, 45, -73)
 
-shapefile_creator(feat,1)
+in_shape = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/zone_test_mtm8.shp"
+out_shape = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/test.shp"
 
-# options = Options()
-# options.add_argument('--headless')
-# options.add_argument('--disable-gpu')
-# options.add_argument('start-maximized')
-# options.add_argument('disable-infobars')
-# options.add_argument("--disable-extensions")
-# options.add_argument('--no-sandbox')
-# driver = webdriver.Chrome("E:/Charles_Tousignant/Python_workspace/Gari/chromedriver", chrome_options=options)
-# driver.set_window_size(2418, 2000)
-# feat = []
+# arcpy.MinimumBoundingGeometry_management(in_shape, out_shape, geometry_type="ENVELOPE")
+
+#  project
+# sr = arcpy.SpatialReference(3857)  # WGS_1984_Web_Mercator_Auxiliary_Sphere
+# arcpy.DefineProjection_management(building_footprint_1, sr)  # Define Projection
+# sr2 = arcpy.SpatialReference(2950)  # NAD_1983_CSRS_MTM_8
+# arcpy.Project_management(building_footprint_1, building_footprint_2, sr2)  # Project
+# arcpy.Delete_management(building_footprint_1)
+
+
+shapefile = ogr.Open(in_shape)
+layer = shapefile.GetLayer(0)
+feature = layer.GetFeature(0)
+geom = feature.GetGeometryRef()
+
+target = osr.SpatialReference()
+target.ImportFromEPSG(4326)
+source = geom.GetSpatialReference()
+transform = osr.CoordinateTransformation(source, target)
+geom.Transform(transform)
+
+envelope = geom.GetEnvelope()
+print(envelope)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###########  TEST couleur#########################
+# import Utils_MP
+# import cv2 as cv
 #
-# url = "https://www.google.ca/maps/@46.1551014,-74.6953247,21z?hl=en-US"
-# driver.get(url)
+# im_path = "E:/Charles_Tousignant/Python_workspace/Gari/screenshots/_test_couleur.png"
+# img_google = cv.imread(im_path)
+# img_gray = cv.cvtColor(img_google, cv.COLOR_BGR2GRAY)
+#
+# image_bat = Utils_MP.building_image(img_google)
+# Utils_MP.tracer_contour(image_bat, img_google)
+
+# ret, thresh1 = cv.threshold(img_gray, 239, 255, cv.THRESH_BINARY)  # with 3D buildings 239
+# ret, thresh2 = cv.threshold(img_gray, 240, 255, cv.THRESH_BINARY)  # without 3D buildings 240
+# residentiel = thresh1 - thresh2  #3D buildings in white
 #
 #
-#
-# png = driver.get_screenshot_as_png()
-# im = Image.open(BytesIO(png))  # uses PIL library to open image in memory
-# im = im.crop((418, 0, 2418, 2000))  # defines crop points
-# im.save("E:/Charles_Tousignant/Python_workspace/Gari/screenshots2/screenshotfff.png")  # saves new cropped image
-#
-# image_bat = building_image(np.array(im))
-# image2features(image_bat, feat, 46.1551014, -74.6953247)
-# shapefile_creator(feat, 1)
-#
-# driver.quit()
-
-
-
-
-
-
-
-
-
-
-
-
+# cv.imshow("T1", thresh1)
+# cv.imshow("T2", thresh2)
+# cv.imshow("res", residentiel)
+# cv.imshow("gray", img_gray)
+# cv.waitKey(0)
+#image2features(image_bat, feat, lat, lon_s)

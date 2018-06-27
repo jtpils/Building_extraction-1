@@ -67,6 +67,13 @@ CONST_lon_s20 = -74.877076  # starting longitude
 CONST_lat_e20 = 46.416437  # ending latitude
 CONST_lon_e20 = -74.871200  # ending longitude
 
+# Secteur test building 3D
+CONST_lat_s21 = 45.688810  # starting latitude
+CONST_lon_s21 = -73.186098  # starting longitude
+CONST_lat_e21 = 45.690597  # ending latitude
+CONST_lon_e21 = -73.182799  # ending longitude
+
+
 #######################################################
 # PRODUCTION : BASSIN VERSANT DE LA RIVIÈRE RICHELIEU #  MTM ZONE 8
 #######################################################
@@ -105,13 +112,13 @@ CONST_lon_s15 = -75.374958  # starting longitude
 CONST_lat_e15 = 47.106742  # ending latitude
 CONST_lon_e15 = -74.262042  # ending longitude
 
-# SUD           349 641 photos           7200 km2     FAIT 1J 22h 22m
+# SUD
 CONST_lat_s16 = 45.565028  # starting latitude
 CONST_lon_s16 = -75.374958  # starting longitude
 CONST_lat_e16 = 46.335900  # ending latitude
 CONST_lon_e16 = -74.262042  # ending longitude
 
-# NORD
+# NORD          349 641 photos           7200 km2     FAIT 1J 22h 22m
 CONST_lat_s17 = 46.335400  # starting latitude
 CONST_lon_s17 = -75.374958  # starting longitude
 CONST_lat_e17 = 47.106742  # ending latitude

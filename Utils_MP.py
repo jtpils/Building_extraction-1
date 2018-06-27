@@ -39,11 +39,16 @@ def building_image(img_google):
     ret, thresh4 = cv.threshold(img_gray, 248, 255, cv.THRESH_BINARY)  # without commercial buildings
     commercial = thresh3 - thresh4  # commercial buildings in white
 
+    ret, thresh5 = cv.threshold(img_gray, 239, 255, cv.THRESH_BINARY)  # with 3D buildings 239
+    ret, thresh6 = cv.threshold(img_gray, 240, 255, cv.THRESH_BINARY)  # without 3D buildings 240
+    building_3d = thresh5 - thresh6  # 3D buildings in white
+
     #  Erase white lines
     minThick = 15  # Define minimum thickness
     se = cv.getStructuringElement(cv.MORPH_ELLIPSE, (minThick, minThick))  # define a disk element
     img_bat = 255 * cv.morphologyEx(residentiel.astype('uint8'), cv.MORPH_OPEN, se)
     img_bat += 255 * cv.morphologyEx(commercial.astype('uint8'), cv.MORPH_OPEN, se)
+    img_bat += 255 * cv.morphologyEx(building_3d.astype('uint8'), cv.MORPH_OPEN, se)
     return img_bat
 
 
