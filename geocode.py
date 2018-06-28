@@ -28,8 +28,9 @@ def latlon2address(lat, lon):
         b = geocoder.bing([lat, lon], method="reverse", key="AjVyhHv7lq__hT5_XLZ8jU0WbQpUIEUhQ7_nlHDw9NlcID9jRJDYLSSkIQmuQJ82")
         if b.city is None and time.time() > timeout:  # if google can't find the address after a certain amount of time
             sys.exit("Bing ne trouve pas d'adresse, veuillez réessayer")
-    print "{},   {}".format(b.street, b.address)  # for bug detection
+    #print "{},   {}".format(b.street, b.address)  # for bug detection
     no_st = b.street
+    print no_st
     if b.street is None:
         no, st = "0", "no info"
     elif not no_st[0].isnumeric():
@@ -101,7 +102,7 @@ def main():
     Change the path of inShapefile and outShapefile for the desired building shapefile to geocode.
     """
     inShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint.shp"
-    outShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_geocode2.shp"
+    outShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_geocode.shp"
     geocode_shapefile(inShapefile, outShapefile)
 
 

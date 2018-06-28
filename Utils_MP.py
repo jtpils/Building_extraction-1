@@ -117,9 +117,7 @@ def shapefile_creator(features, n):
     building_footprint_1 = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_1_{}.shp".format(n)
     building_footprint_2 = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_2_{}.shp".format(n)
     building_footprint_z21 = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_z21_{}.shp".format(n)  # final shapefile
-
     arcpy.CopyFeatures_management(features, building_footprint_1)
-
     #  project
     sr = arcpy.SpatialReference(3857)  # WGS_1984_Web_Mercator_Auxiliary_Sphere
     arcpy.DefineProjection_management(building_footprint_1, sr)  # Define Projection

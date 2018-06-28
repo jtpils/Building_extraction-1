@@ -117,16 +117,13 @@ def start_process(lat_s, lon_s, lat_e, lon_e, shape_path):
     delta_lat = lat_e - lat_s
     n = int(delta_lat/CONST_dlat) + 1
     print("Multiprocessing building extraction. Task will be split in {} different processes.".format(n))
-
-    arcpy.env.workspace = arcpy.Describe(shape_path).path
-    contour_name = arcpy.Describe(shape_path).baseName
-    contour_buffer = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Bassin_versant/{0}_buffer.shp".format(contour_name)
-    contour_buffer_proj = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Bassin_versant/{0}_buffer_proj.shp".format(contour_name)
-    # create buffer shapefile if it does not exists
-    if not arcpy.Exists(contour_buffer):
-        arcpy.Buffer_analysis(shape_path, contour_buffer, "200 meters")
-        sr = arcpy.SpatialReference(4326)  # WGS84
-        arcpy.Project_management(contour_buffer, contour_buffer_proj, sr)  # Project
+    arcpy.env.workspace = arcpy.env.scratchGDB
+    arcpy.env.overwriteOutput = True
+    buffer_ = "buffer"
+    buffer_p = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/temp_buffer_proj.shp"
+    arcpy.Buffer_analysis(shape_path, buffer_, "200 meters")
+    sr = arcpy.SpatialReference(4326)  # WGS84
+    arcpy.Project_management(buffer_, buffer_p, sr)  # Project
     # create a list of the latitude for every row
     lat_list = []
     for i in range(n):
@@ -135,13 +132,12 @@ def start_process(lat_s, lon_s, lat_e, lon_e, shape_path):
     core_number = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(core_number)
     # start processes
-    results = [pool.apply_async(scan, args=(lat_list[i], lon_s, lon_e, i+1, contour_buffer_proj)) for i in range(0, n)]
+    results = [pool.apply_async(scan, args=(lat_list[i], lon_s, lon_e, i+1, buffer_p)) for i in range(0, n)]
     shapefile_list = [p.get() for p in results]  # list of shapefiles path created during all processes
-
     pool.close()
     pool.join()
-    arcpy.Delete_management(contour_buffer)
-    arcpy.Delete_management(contour_buffer_proj)
+    arcpy.Delete_management(buffer_)
+    arcpy.Delete_management(buffer_p)
     return n
 
 
@@ -171,7 +167,7 @@ def main(shape_path):
 
 if __name__ == "__main__":
 
-    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/zone_test_mtm8.shp"
-    #shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/convexHull_500_zonetest.shp"
+    #shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/zone_test_wgs84.shp"
+    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Sabrevois_munic.shp"
     main(shapefile_contour_path)
 
