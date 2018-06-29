@@ -28,9 +28,8 @@ def latlon2address(lat, lon):
         b = geocoder.bing([lat, lon], method="reverse", key="AjVyhHv7lq__hT5_XLZ8jU0WbQpUIEUhQ7_nlHDw9NlcID9jRJDYLSSkIQmuQJ82")
         if b.city is None and time.time() > timeout:  # if google can't find the address after a certain amount of time
             sys.exit("Bing ne trouve pas d'adresse, veuillez réessayer")
-    #print "{},   {}".format(b.street, b.address)  # for bug detection
     no_st = b.street
-    print no_st
+    print no_st  # for bug detection
     if b.street is None:
         no, st = "0", "no info"
     elif not no_st[0].isnumeric():
@@ -51,7 +50,10 @@ def geocode_shapefile(in_shapefile, out_shapefile):
     :param out_shapefile: (string) output building shapefile
     """
     # make a copy of the input shapefile
-    if arcpy.Exists(out_shapefile):
+    # if arcpy.Exists(out_shapefile):
+    #     arcpy.Delete_management(out_shapefile)
+    # arcpy.Copy_management(in_shapefile, out_shapefile)
+    if os.path.exists(out_shapefile):
         arcpy.Delete_management(out_shapefile)
     arcpy.Copy_management(in_shapefile, out_shapefile)
 

@@ -13,6 +13,7 @@ import arcpy.cartography as ca
 import math
 import time
 import datetime
+import os
 
 
 start_time = time.time()  # start timer
@@ -23,6 +24,18 @@ def elapsed_time():
     return "Elapsed time: {}".format(temps)
 
 
+def new_shp_name(file_path):
+    while os.path.exists(file_path):
+        try:
+            int(file_path[-5])
+        except ValueError:
+            file_path = file_path[0:-4] + "1.shp"
+        else:
+            number = str(int(file_path[-5]) + 1)
+            file_path = file_path[0:-5] + number + ".shp"
+    return file_path
+
+
 def building_image(img_google):
     """
     Create a binary image with detected buildings
@@ -31,14 +44,14 @@ def building_image(img_google):
     """
     img_gray = cv.cvtColor(img_google, cv.COLOR_BGR2GRAY)
 
-    ret, thresh1 = cv.threshold(img_gray, 234, 255, cv.THRESH_BINARY)  # with residential buildings 236
-    ret, thresh2 = cv.threshold(img_gray, 237, 255, cv.THRESH_BINARY)  # without residential buildings 237
+    ret, thresh1 = cv.threshold(img_gray, 234, 255, cv.THRESH_BINARY)  # 234 # with residential buildings 236
+    ret, thresh2 = cv.threshold(img_gray, 237, 255, cv.THRESH_BINARY)  # 237 without residential buildings 237
     residentiel = thresh1 - thresh2  # residential buildings in white
 
     ret, thresh3 = cv.threshold(img_gray, 247, 255, cv.THRESH_BINARY)  # with commercial buildings
     ret, thresh4 = cv.threshold(img_gray, 248, 255, cv.THRESH_BINARY)  # without commercial buildings
     commercial = thresh3 - thresh4  # commercial buildings in white
-
+    #  TODO 3D cause nouveaux problèmes
     ret, thresh5 = cv.threshold(img_gray, 239, 255, cv.THRESH_BINARY)  # with 3D buildings 239
     ret, thresh6 = cv.threshold(img_gray, 240, 255, cv.THRESH_BINARY)  # without 3D buildings 240
     building_3d = thresh5 - thresh6  # 3D buildings in white
@@ -114,6 +127,7 @@ def shapefile_creator(features, n):
     :param features: (list) List of Polygon objects
     :return (string) path of shapefile
     """
+    arcpy.env.overwriteOutput = True
     building_footprint_1 = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_1_{}.shp".format(n)
     building_footprint_2 = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_2_{}.shp".format(n)
     building_footprint_z21 = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_z21_{}.shp".format(n)  # final shapefile
@@ -125,8 +139,10 @@ def shapefile_creator(features, n):
     arcpy.Project_management(building_footprint_1, building_footprint_2, sr2)  # Project
     arcpy.Delete_management(building_footprint_1)
 
-    #  Aggregate overlaping buildings
-    ca.AggregatePolygons(building_footprint_2, building_footprint_z21, 0.01, 2, 2, "ORTHOGONAL", "")
+    #  Dissolve overlaping buildings
+    #arcpy.Dissolve_management(building_footprint_2, building_footprint_z21, multi_part="SINGLE_PART")
+    ca.AggregatePolygons(building_footprint_2, building_footprint_z21, 0.01, 3, 3, "ORTHOGONAL", "")
+
     arcpy.Delete_management(building_footprint_2)
 
     return building_footprint_z21
