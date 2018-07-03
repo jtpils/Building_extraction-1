@@ -781,5 +781,11 @@
         </state>
       </provider>
     </entry>
+
+  <component name="ProjectFrameBounds">
+    <option name="x" value="24" />
+    <option name="width" value="1864" />
+    <option name="height" value="1040" />
+
   </component>
 </project>

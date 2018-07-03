@@ -3,6 +3,7 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$" />
 
+
     <orderEntry type="jdk" jdkName="Python 2.7 (Building_extraction)" jdkType="Python SDK" />
 
     <orderEntry type="jdk" jdkName="Python 3.6" jdkType="Python SDK" />
@@ -12,5 +13,13 @@
   <component name="TestRunnerService">
     <option name="projectConfiguration" value="Nosetests" />
     <option name="PROJECT_TEST_RUNNER" value="Nosetests" />
+
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+  <component name="TestRunnerService">
+    <option name="projectConfiguration" value="py.test" />
+    <option name="PROJECT_TEST_RUNNER" value="py.test" />
+
   </component>
 </module>
