@@ -1,14 +1,26 @@
 # # -*- coding: utf-8 -*-
+import ogr
+import sys
+import geopandas as gpd
+from shapely.geometry import MultiPolygon, JOIN_STYLE
+import itertools
+import osr
 
 import arcpy
-
-
-# file_path = r"E:\Charles_Tousignant\Python_workspace\Gari\shapefile\copy.shp"
-# file_path_out = r"E:\Charles_Tousignant\Python_workspace\Gari\shapefile\copy_out.shp"
-# #arcpy.AddField_management(file_path, "superficie", "FLOAT", 9)
-# #arcpy.AddGeometryAttributes_management(file_path, "CENTROID;PERIMETER_LENGTH;AREA", "METERS", "SQUARE_METERS")
+import arcpy.cartography as ca
+# building_footprint0 = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_del.shp"
+# building_footprint = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_del_dis.shp"
 #
-# arcpy.SelectLayerByAttribute_management(file_path, "NEW_SELECTION", '"POLY AREA" > 4.0')
+# arcpy.Dissolve_management(building_footprint0, building_footprint, multi_part="SINGLE_PART")
+
+# file_path = r"E:\Charles_Tousignant\Python_workspace\Gari\shapefile\building_footprint_del_dis.shp"
+# file_path_out = r"E:\Charles_Tousignant\Python_workspace\Gari\shapefile\copy_out.shp"
+# # arcpy.AddField_management(file_path, "superficie", "FLOAT", 9)
+# # arcpy.AddGeometryAttributes_management(file_path, "CENTROID;PERIMETER_LENGTH;AREA", "METERS", "SQUARE_METERS")
+# table = r"E:\Charles_Tousignant\Python_workspace\Gari\shapefile\table_out"
+
+# arcpy.MakeTableView_management(file_path, table)
+# arcpy.SelectLayerByAttribute_management(table, "NEW_SELECTION", '"POLY_AREA" > 4.0')
 # arcpy.Eliminate_management(file_path, file_path_out)
 
 
@@ -18,92 +30,55 @@ import arcpy
 
 
 
-# import os
-# file_path = r"E:\Charles_Tousignant\Python_workspace\Gari\shapefile\building_footprin.shp"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###############################fonctionne mais pas de proj. alternative a aggragate polygons###########
+import geopandas as gpd
+# eps=5 # width for dilating and eroding (buffer)
+# dist = 2  # threshold distance
+# # read the original shapefile
+# df = gpd.read_file("E:/Charles_Tousignant/Python_workspace/Gari/shapefile/extr.shp")
+# crs = df.crs
+# print type(crs)
+# # create new result shapefile
+# col = ['geometry']
+# res = gpd.GeoDataFrame(columns=col)
+# # iterate over pairs of polygons in the GeoDataFrame
+# for i, j in list(itertools.combinations(df.index, 2)):
+#  distance = df.geometry.ix[i].distance( df.geometry.ix[j]) # distance between polygons i and j in the shapefile
+#  print distance
+#  if distance < dist:
+#      e = MultiPolygon([ df.geometry.ix[i],df.geometry.ix[j]])
+#      fx = e.buffer(eps, 1, join_style=JOIN_STYLE.mitre).buffer(-eps, 1, join_style=JOIN_STYLE.mitre)
+#      res = res.append({'geometry':fx}, ignore_index=True)
+#      print type(res)
 #
-# while os.path.exists(file_path):
-#     try:
-#         int(file_path[-5])
-#     except ValueError:
-#         file_path = file_path[0:-4] + "1.shp"
-#     else:
-#         number = str(int(file_path[-5]) + 1)
-#         file_path = file_path[0:-5] + number + ".shp"
-#
-#
-# print file_path
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# import ogr
-# import osr
-#
-#
-# in_shape = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/zone_test_mtm8.shp"
-# out_shape = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/test.shp"
-#
-# # arcpy.MinimumBoundingGeometry_management(in_shape, out_shape, geometry_type="ENVELOPE")
-#
-# #  project
-# # sr = arcpy.SpatialReference(3857)  # WGS_1984_Web_Mercator_Auxiliary_Sphere
-# # arcpy.DefineProjection_management(building_footprint_1, sr)  # Define Projection
-# # sr2 = arcpy.SpatialReference(2950)  # NAD_1983_CSRS_MTM_8
-# # arcpy.Project_management(building_footprint_1, building_footprint_2, sr2)  # Project
-# # arcpy.Delete_management(building_footprint_1)
-#
-#
-# shapefile = ogr.Open(in_shape)
-# layer = shapefile.GetLayer(0)
-# feature = layer.GetFeature(0)
-# geom = feature.GetGeometryRef()
-#
-# target = osr.SpatialReference()
-# target.ImportFromEPSG(4326)
-# source = geom.GetSpatialReference()
-# transform = osr.CoordinateTransformation(source, target)
-# geom.Transform(transform)
-#
-# envelope = geom.GetEnvelope()
-# print(envelope)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# # save the resulting shapefile
+# #res = res.to_crs(epsg=2950)
+# res.to_file("E:/Charles_Tousignant/Python_workspace/Gari/shapefile/aggregates.shp")
+#########################################################################################################
 
 
 

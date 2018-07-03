@@ -12,12 +12,13 @@ from selenium.webdriver.chrome.options import Options
 import multiprocessing
 from Utils_MP import *
 import fiona
-from shapely.geometry import Point
-from shapely.geometry import shape
+from shapely.geometry import Point, shape
+#from shapely.geometry import shape
 from PIL import Image
 from io import BytesIO
 import ogr
 import osr
+#import arcpy.cartography as ca
 
 CONST_dlat = 0.000930  # 0.000882  # latitude difference between screenshots
 CONST_dlon = 0.001330  # 0.001280  # longitude difference between screenshots
@@ -40,13 +41,33 @@ def final_shapefile(n):
     arcpy.Merge_management(shapefile_list, building_footprint0)
     for i in range(n):
         arcpy.Delete_management("E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_z21_{}.shp".format(i+1))
-    print("Merging complete.                                                                       {}".format(elapsed_time()))
+    print("Merge complete.                                                                         {}".format(elapsed_time()))
 
     print("Dissolving polygons...")
     building_footprint = new_shp_name(building_footprint)  # new file name if file already exists
+    arcpy.Dissolve_management(building_footprint0, building_footprint, multi_part="SINGLE_PART")
+    #ca.AggregatePolygons(building_footprint0, building_footprint, 0.01, 3, 3, "ORTHOGONAL", "")
+    print("Dissolve complete.                                                                      {}".format(elapsed_time()))
 
-    #arcpy.Dissolve_management(building_footprint0, building_footprint, multi_part="SINGLE_PART")
-    ca.AggregatePolygons(building_footprint0, building_footprint, 0.01, 3, 3, "ORTHOGONAL", "")
+    print("Removing small polygons...")
+    ds = ogr.Open(building_footprint, update=1)
+    lyr = ds.GetLayer()
+    lyr.ResetReading()
+    field_defn = ogr.FieldDefn("Area", ogr.OFTReal)
+    lyr.CreateField(field_defn)
+    j = 0
+    for i in lyr:
+        feat = lyr.GetFeature(j)
+        geom = i.GetGeometryRef()
+        area = geom.GetArea()
+        #print 'Area =', area
+        #lyr.SetFeature(i)
+        i.SetField("Area", area)
+        lyr.SetFeature(i)
+        if area < 4.0:  # smaller than
+            lyr.DeleteFeature(feat.GetFID())
+        j += 1
+    # #ds = None
 
     arcpy.Delete_management(building_footprint0)
     print("Final shapefile complete.                                                               {}".format(elapsed_time()))
@@ -91,7 +112,7 @@ def scan(lat, lon_s, lon_e, n, contour_buffer):
             image_bat = building_image(cv.imread(im_path))
             print("Process {}: Detecting and extracting building footprints from screenshot #{}...           {}".format(n, counter_screenshots + 1, elapsed_time()))
             image2features(image_bat, feat, lat, lon_s)
-            #os.remove(im_path)  # delete PNG
+            os.remove(im_path)  # delete PNG
             counter_screenshots += 1
         lon_s += CONST_dlon
     driver.quit()
@@ -170,19 +191,26 @@ def main(shape_path):
 
 if __name__ == "__main__":
 
-    #shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/zone_test_wgs84.shp"
-    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Beloeil_munic.shp"
-    main(shapefile_contour_path)
-    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Chambly_munic.shp"
-    main(shapefile_contour_path)
-    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Lacolle_munic.shp"
-    main(shapefile_contour_path)
-    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Sorel_munic.shp"
-    main(shapefile_contour_path)
-    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/StMarc_munic.shp"
-    main(shapefile_contour_path)
-    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/SJSR_munic.shp"
-    main(shapefile_contour_path)
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/test.shp"
+    # main(shapefile_contour_path)
+
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Beloeil_munic.shp"
+    # main(shapefile_contour_path)
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Chambly_munic.shp"
+    # main(shapefile_contour_path)
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Lacolle_munic.shp"
+    # main(shapefile_contour_path)
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Sabrevois_munic.shp"
+    # main(shapefile_contour_path)
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Sorel_munic.shp"
+    # main(shapefile_contour_path)
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/StMarc_munic.shp"
+    # main(shapefile_contour_path)
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/SJSR_munic.shp"
+    # main(shapefile_contour_path)
+
+
+
 
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/zone_test_mtm8.shp"
     # # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/SJSR_munic.shp"

@@ -9,7 +9,7 @@
 import numpy as np
 import cv2 as cv
 import arcpy
-import arcpy.cartography as ca
+#import arcpy.cartography as ca
 import math
 import time
 import datetime
@@ -140,8 +140,8 @@ def shapefile_creator(features, n):
     arcpy.Delete_management(building_footprint_1)
 
     #  Dissolve overlaping buildings
-    #arcpy.Dissolve_management(building_footprint_2, building_footprint_z21, multi_part="SINGLE_PART")
-    ca.AggregatePolygons(building_footprint_2, building_footprint_z21, 0.01, 3, 3, "ORTHOGONAL", "")
+    arcpy.Dissolve_management(building_footprint_2, building_footprint_z21, multi_part="SINGLE_PART")
+    #ca.AggregatePolygons(building_footprint_2, building_footprint_z21, 0.01, 3, 3, "ORTHOGONAL", "")
 
     arcpy.Delete_management(building_footprint_2)
 
