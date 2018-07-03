@@ -6,11 +6,10 @@
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Building_extractor_MP.py" beforeDir="false" afterPath="$PROJECT_DIR$/Building_extractor_MP.py" afterDir="false" />
-<<<<<<< HEAD
+
       <change beforePath="$PROJECT_DIR$/Utils_MP.py" beforeDir="false" afterPath="$PROJECT_DIR$/Utils_MP.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
-=======
->>>>>>> bad49f3654272c9a1bdd333d4cdedad2966aa367
+
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -24,7 +23,7 @@
       <file leaf-file-name="Building_extractor_MP.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Building_extractor_MP.py">
           <provider selected="true" editor-type-id="text-editor">
-<<<<<<< HEAD
+
             <state relative-caret-position="481">
               <caret line="201" column="34" lean-forward="true" selection-start-line="201" selection-start-column="34" selection-end-line="201" selection-end-column="34" />
               <folding>
@@ -105,10 +104,10 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="1836">
               <caret line="108" column="9" selection-start-line="108" selection-start-column="9" selection-end-line="108" selection-end-column="9" />
-=======
+
             <state relative-caret-position="459">
               <caret line="37" column="40" lean-forward="true" selection-start-line="37" selection-start-column="40" selection-end-line="37" selection-end-column="40" />
->>>>>>> bad49f3654272c9a1bdd333d4cdedad2966aa367
+
             </state>
           </provider>
         </entry>
@@ -138,16 +137,16 @@
     </option>
   </component>
   <component name="ProjectFrameBounds">
-<<<<<<< HEAD
+
     <option name="x" value="24" />
     <option name="width" value="1864" />
     <option name="height" value="1040" />
-=======
+
     <option name="x" value="108" />
     <option name="y" value="5" />
     <option name="width" value="1783" />
     <option name="height" value="944" />
->>>>>>> bad49f3654272c9a1bdd333d4cdedad2966aa367
+
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -298,7 +297,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-<<<<<<< HEAD
+
     <frame x="24" y="0" width="1864" height="1040" extended-state="0" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.48722318" visible="true" weight="0.09748083" />
@@ -312,7 +311,7 @@
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3986711" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-=======
+
     <frame x="108" y="5" width="1783" height="944" extended-state="0" />
     <editor active="true" />
     <layout>
@@ -330,7 +329,7 @@
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.3297062" />
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.48722318" visible="true" weight="0.09828824" />
       <window_info id="Structure" order="1" sideWeight="0.51277685" side_tool="true" weight="0.108735494" />
->>>>>>> bad49f3654272c9a1bdd333d4cdedad2966aa367
+
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.30898204" />
@@ -341,13 +340,13 @@
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-<<<<<<< HEAD
+
       <window_info anchor="bottom" id="Find" order="1" />
-=======
+
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Python Console" order="7" weight="0.3297062" />
->>>>>>> bad49f3654272c9a1bdd333d4cdedad2966aa367
+
     </layout>
     <layout-to-restore>
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -682,7 +681,7 @@
         </state>
       </provider>
     </entry>
-<<<<<<< HEAD
+
     <entry file="file://C:/Program Files (x86)/ArcGIS/Desktop10.5/arcpy/arcpy/management.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="187">
@@ -691,10 +690,10 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Station_hydro.py">
-=======
+
     <entry file="file://C:/Program Files (x86)/ArcGIS/Desktop10.5/arcpy/arcpy/management.py" />
     <entry file="file://$PROJECT_DIR$/Bounding_box.py">
->>>>>>> bad49f3654272c9a1bdd333d4cdedad2966aa367
+
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="136">
           <caret line="8" column="22" selection-start-line="8" selection-start-column="22" selection-end-line="8" selection-end-column="22" />
@@ -703,31 +702,31 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/geocode.py">
       <provider selected="true" editor-type-id="text-editor">
-<<<<<<< HEAD
+
         <state relative-caret-position="1088">
           <caret line="64" column="74" selection-start-line="64" selection-start-column="74" selection-end-line="64" selection-end-column="74" />
           <folding>
             <element signature="e#423#433#0" expanded="true" />
           </folding>
-=======
+
         <state relative-caret-position="505">
           <caret line="128" column="4" selection-start-line="128" selection-start-column="4" selection-end-line="128" selection-end-column="36" />
->>>>>>> bad49f3654272c9a1bdd333d4cdedad2966aa367
+
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/fctDiguesV2.py">
       <provider selected="true" editor-type-id="text-editor">
-<<<<<<< HEAD
+
         <state relative-caret-position="2176">
           <caret line="128" column="4" selection-start-line="128" selection-start-column="4" selection-end-line="128" selection-end-column="36" />
           <folding>
             <element signature="e#514#526#0" expanded="true" />
           </folding>
-=======
+
         <state relative-caret-position="318">
           <caret line="64" column="74" selection-start-line="64" selection-start-column="74" selection-end-line="64" selection-end-column="74" />
->>>>>>> bad49f3654272c9a1bdd333d4cdedad2966aa367
+
         </state>
       </provider>
     </entry>
@@ -754,31 +753,31 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Utils_MP.py">
       <provider selected="true" editor-type-id="text-editor">
-<<<<<<< HEAD
+
         <state relative-caret-position="255">
           <caret line="15" column="9" lean-forward="true" selection-start-line="15" selection-start-column="9" selection-end-line="15" selection-end-column="9" />
           <folding>
             <element signature="e#304#322#0" expanded="true" />
           </folding>
-=======
+
         <state relative-caret-position="425">
           <caret line="145" column="49" lean-forward="true" selection-start-line="145" selection-start-column="49" selection-end-line="145" selection-end-column="49" />
->>>>>>> bad49f3654272c9a1bdd333d4cdedad2966aa367
+
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Building_extractor_MP.py">
       <provider selected="true" editor-type-id="text-editor">
-<<<<<<< HEAD
+
         <state relative-caret-position="481">
           <caret line="201" column="34" lean-forward="true" selection-start-line="201" selection-start-column="34" selection-end-line="201" selection-end-column="34" />
           <folding>
             <element signature="e#387#417#0" expanded="true" />
           </folding>
-=======
+
         <state relative-caret-position="459">
           <caret line="37" column="40" lean-forward="true" selection-start-line="37" selection-start-column="40" selection-end-line="37" selection-end-column="40" />
->>>>>>> bad49f3654272c9a1bdd333d4cdedad2966aa367
+
         </state>
       </provider>
     </entry>

@@ -23,7 +23,7 @@ import osr
 CONST_dlat = 0.000930  # 0.000882  # latitude difference between screenshots
 CONST_dlon = 0.001330  # 0.001280  # longitude difference between screenshots
 shapefile_list = []
-#push test
+
 
 def final_shapefile(n):
     """
