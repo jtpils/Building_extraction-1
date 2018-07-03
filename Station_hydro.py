@@ -4,7 +4,7 @@
 # Created on: 2018-06-14
 # Author : Charles Tousignant
 # Project : GARI
-# Description : Récupérer automatiquement les débits d’une station hydrométrique
+# Description : Récupérer automatiquement les débits d’une station hydrométrique (scheduled task every hours at :48)
 # ---------------------------------------------------------------------------
 import lxml.html as PARSER
 import urllib
@@ -34,7 +34,6 @@ def main():
     print(suivi_list[1])
     print(suivi_list[2])
     print(suivi_list[3])
-
 
 
 if __name__ == "__main__":

@@ -55,6 +55,25 @@ CONST_lon_s7 = -73.124723  # starting longitude
 CONST_lat_e7 = 46.009650  # ending latitude
 CONST_lon_e7 = -73.118092  # ending longitude
 
+# Secteur test aeroport la macaza
+CONST_lat_s19 = 46.408162  # starting latitude
+CONST_lon_s19 = -74.787901  # starting longitude
+CONST_lat_e19 = 46.413534  # ending latitude
+CONST_lon_e19 = -74.773443  # ending longitude
+
+# Secteur test l'annonciation
+CONST_lat_s20 = 46.413872  # starting latitude
+CONST_lon_s20 = -74.877076  # starting longitude
+CONST_lat_e20 = 46.416437  # ending latitude
+CONST_lon_e20 = -74.871200  # ending longitude
+
+# Secteur test building 3D
+CONST_lat_s21 = 45.688810  # starting latitude
+CONST_lon_s21 = -73.186098  # starting longitude
+CONST_lat_e21 = 45.690597  # ending latitude
+CONST_lon_e21 = -73.182799  # ending longitude
+
+
 #######################################################
 # PRODUCTION : BASSIN VERSANT DE LA RIVIÈRE RICHELIEU #  MTM ZONE 8
 #######################################################
@@ -83,7 +102,6 @@ CONST_lon_s14 = -73.609889  # starting longitude
 CONST_lat_e14 = 45.266972  # ending latitude
 CONST_lon_e14 = -72.948364  # ending longitude
 
-
 #######################################################
 # PRODUCTION : BASSIN VERSANT DE LA PETITE-NATION #  MTM ZONE 8
 #######################################################
@@ -100,7 +118,7 @@ CONST_lon_s16 = -75.374958  # starting longitude
 CONST_lat_e16 = 46.335900  # ending latitude
 CONST_lon_e16 = -74.262042  # ending longitude
 
-# NORD
+# NORD          349 641 photos           7200 km2     FAIT 1J 22h 22m
 CONST_lat_s17 = 46.335400  # starting latitude
 CONST_lon_s17 = -75.374958  # starting longitude
 CONST_lat_e17 = 47.106742  # ending latitude
@@ -111,5 +129,3 @@ CONST_lat_s18 = 45.565028  # starting latitude
 CONST_lon_s18 = -75.374958  # starting longitude
 CONST_lat_e18 = 45.813675  # ending latitude
 CONST_lon_e18 = -74.460386  # ending longitude
-
-

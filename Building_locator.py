@@ -7,12 +7,9 @@
 # Description : Extraction de l'emprunte d'un bâtiment selon son addresse
 # ---------------------------------------------------------------------------
 import sys
-import time
-import arcpy
-import cv2 as cv
 import geocoder
 from selenium import webdriver
-from Building_extractor_MP import merc_x, merc_y, building_image, image2features
+from Utils_MP import *
 from selenium.webdriver.chrome.options import Options
 
 

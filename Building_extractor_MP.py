@@ -11,13 +11,17 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import multiprocessing
 from Utils_MP import *
-from Bounding_box import *
 import fiona
-from shapely.geometry import Point
-from shapely.geometry import shape
+from shapely.geometry import Point, shape
+#from shapely.geometry import shape
+from PIL import Image
+from io import BytesIO
+import ogr
+import osr
+#import arcpy.cartography as ca
 
-CONST_dlat = 0.000882  # latitude difference between screenshots
-CONST_dlon = 0.001280  # longitude difference between screenshots
+CONST_dlat = 0.000930  # 0.000882  # latitude difference between screenshots
+CONST_dlon = 0.001330  # 0.001280  # longitude difference between screenshots
 shapefile_list = []
 
 
@@ -28,7 +32,8 @@ def final_shapefile(n):
     """
     global shapefile_list
     shapefile_list = filter(None, shapefile_list)  # remove None values from list
-    building_footprint0 = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint0.shp"
+    arcpy.env.overwriteOutput = True
+    building_footprint0 = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_del.shp"
     building_footprint = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint.shp"  # final shapefile
 
     print("Creating final shapefile...")
@@ -36,11 +41,34 @@ def final_shapefile(n):
     arcpy.Merge_management(shapefile_list, building_footprint0)
     for i in range(n):
         arcpy.Delete_management("E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_z21_{}.shp".format(i+1))
-    print("Merging complete.                                                                       {}".format(elapsed_time()))
+    print("Merge complete.                                                                         {}".format(elapsed_time()))
 
-    print("Aggregating polygons...")
-    arcpy.env.overwriteOutput = True
-    ca.AggregatePolygons(building_footprint0, building_footprint, 0.01, 2, 2, "ORTHOGONAL", "")
+    print("Dissolving polygons...")
+    building_footprint = new_shp_name(building_footprint)  # new file name if file already exists
+    arcpy.Dissolve_management(building_footprint0, building_footprint, multi_part="SINGLE_PART")
+    #ca.AggregatePolygons(building_footprint0, building_footprint, 0.01, 3, 3, "ORTHOGONAL", "")
+    print("Dissolve complete.                                                                      {}".format(elapsed_time()))
+
+    print("Removing small polygons...")
+    ds = ogr.Open(building_footprint, update=1)
+    lyr = ds.GetLayer()
+    lyr.ResetReading()
+    field_defn = ogr.FieldDefn("Area", ogr.OFTReal)
+    lyr.CreateField(field_defn)
+    j = 0
+    for i in lyr:
+        feat = lyr.GetFeature(j)
+        geom = i.GetGeometryRef()
+        area = geom.GetArea()
+        #print 'Area =', area
+        #lyr.SetFeature(i)
+        i.SetField("Area", area)
+        lyr.SetFeature(i)
+        if area < 4.0:  # smaller than
+            lyr.DeleteFeature(feat.GetFID())
+        j += 1
+    # #ds = None
+
     arcpy.Delete_management(building_footprint0)
     print("Final shapefile complete.                                                               {}".format(elapsed_time()))
 
@@ -52,7 +80,7 @@ def scan(lat, lon_s, lon_e, n, contour_buffer):
     :param lon_s: (float) starting longitude
     :param lon_e: (float) ending longitude
     :param n: (int) number of the process
-    :param contour_buffer: (string) path of contour buffer shapefile (must be projected in GCS_WGS_1984)
+    :param contour_buffer: (string) path of contour buffer shapefile
     """
     print("Process {}: Taking screenshots...".format(n))
     options = Options()
@@ -63,11 +91,10 @@ def scan(lat, lon_s, lon_e, n, contour_buffer):
     options.add_argument("--disable-extensions")
     options.add_argument('--no-sandbox')
     driver = webdriver.Chrome("E:/Charles_Tousignant/Python_workspace/Gari/chromedriver", chrome_options=options)
-    driver.set_window_size(2000, 2000)
+    driver.set_window_size(2418, 2000)
 
     counter_screenshots = 0  # for counting number of screenshots
     feat = []
-
     zone = fiona.open(contour_buffer)
     polygon = zone.next()
     zone.close()
@@ -77,12 +104,15 @@ def scan(lat, lon_s, lon_e, n, contour_buffer):
         if point.within(shp_geom):
             url = "https://www.google.ca/maps/@%f,%f,21z?hl=en-US" % (lat, lon_s)
             driver.get(url)
-            screenshot_path = "E:/Charles_Tousignant/Python_workspace/Gari/screenshots/screenshot{}.png".format(counter_screenshots + 1 + n*1000000) # Pour enregistrer toutes les images
-            driver.save_screenshot(screenshot_path)
-            image_google = cv.imread(screenshot_path)
-            image_bat = building_image(image_google)
+            png = driver.get_screenshot_as_png()
+            im = Image.open(BytesIO(png))  # uses PIL library to open image in memory
+            im = im.crop((418, 0, 2418, 2000))  # get rid of the left panel
+            im_path = "E:/Charles_Tousignant/Python_workspace/Gari/screenshots/screenshot{}.png".format(counter_screenshots + 1 + n*1000000)
+            im.save(im_path)
+            image_bat = building_image(cv.imread(im_path))
             print("Process {}: Detecting and extracting building footprints from screenshot #{}...           {}".format(n, counter_screenshots + 1, elapsed_time()))
             image2features(image_bat, feat, lat, lon_s)
+            os.remove(im_path)  # delete PNG
             counter_screenshots += 1
         lon_s += CONST_dlon
     driver.quit()
@@ -97,53 +127,91 @@ def scan(lat, lon_s, lon_e, n, contour_buffer):
         print("Process {}: No building were detected. No shapefile will be created for this process".format(n))
 
 
-def start_process(lat_s, lon_s, lat_e, lon_e, contour):
+def start_process(lat_s, lon_s, lat_e, lon_e, shape_path):
     """
     Divide the bounding box in different regions and start one process for each region
     :param lat_s: (float) starting Latitude
     :param lon_s: (float) starting longitude
     :param lat_e: (float) ending latitude
     :param lon_e: (float) ending longitude
-    :param contour: (string) path of contour shapefile (must be projected in GCS_WGS_1984)
+    :param shape_path: (string) path of contour shapefile
     :return n: (int) number of total processes
     """
     global shapefile_list
     delta_lat = lat_e - lat_s
-    n = int(delta_lat/CONST_dlat)
+    n = int(delta_lat/CONST_dlat) + 1
     print("Multiprocessing building extraction. Task will be split in {} different processes.".format(n))
-
-    arcpy.env.workspace = arcpy.Describe(contour).path
-    contour_name = arcpy.Describe(contour).baseName
-    contour_buffer = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Bassin_versant/{0}_buffer.shp".format(contour_name)
-
-    if not arcpy.Exists(contour_buffer):  # create buffer shapefile if it does not exists
-        arcpy.Buffer_analysis(contour, contour_buffer, "100 meters")
-
-    bbox = []
+    arcpy.env.workspace = arcpy.env.scratchGDB
+    arcpy.env.overwriteOutput = True
+    buffer_ = "buffer"
+    buffer_p = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/temp_buffer_proj.shp"
+    arcpy.Buffer_analysis(shape_path, buffer_, "200 meters")
+    sr = arcpy.SpatialReference(4326)  # WGS84
+    arcpy.Project_management(buffer_, buffer_p, sr)  # Project
+    # create a list of the latitude for every row
+    lat_list = []
     for i in range(n):
-        bbox.append(lat_s + i*CONST_dlat)
-
+        lat_list.append(lat_s + i*CONST_dlat)
+    # use all available cores, otherwise specify the number you want as an argument
     core_number = multiprocessing.cpu_count()
-    pool = multiprocessing.Pool(core_number)  # use all available cores, otherwise specify the number you want as an argument
-    results = [pool.apply_async(scan, args=(bbox[i], lon_s, lon_e, i+1, contour_buffer)) for i in range(0, n)]
-    shapefile_list = [p.get() for p in results]
-
+    pool = multiprocessing.Pool(core_number)
+    # start processes
+    results = [pool.apply_async(scan, args=(lat_list[i], lon_s, lon_e, i+1, buffer_p)) for i in range(0, n)]
+    shapefile_list = [p.get() for p in results]  # list of shapefiles path created during all processes
     pool.close()
     pool.join()
-    arcpy.Delete_management(contour_buffer)
+    arcpy.Delete_management(buffer_)
+    arcpy.Delete_management(buffer_p)
     return n
 
 
-def main(lat_s, lon_s, lat_e, lon_e, contour):
+def main(shape_path):
     """
-    Main function. Scan the bounding box and creates a shapefile containing all the detected building footprints
+    Main function. Scan the shapefile envelope and creates a shapefile containing all the detected building footprints
+    :param shape_path: (string) path of contour shapefile
     """
-    num = start_process(lat_s, lon_s, lat_e, lon_e, contour)
+    out_shape_path = shape_path
+    # get geometry of shapefile
+    shapefile = ogr.Open(shape_path)
+    layer = shapefile.GetLayer(0)
+    feature = layer.GetFeature(0)
+    geom = feature.GetGeometryRef()
+    # project geometry in WGS84
+    target = osr.SpatialReference()
+    target.ImportFromEPSG(4326)
+    source = geom.GetSpatialReference()
+    transform = osr.CoordinateTransformation(source, target)
+    geom.Transform(transform)
+    # get envelope of geometry
+    envelope = geom.GetEnvelope()
+    # start processes using envelope
+    num = start_process(envelope[2]-0.0007, envelope[0]-0.0007, envelope[3]+0.0007, envelope[1]+0.0007, out_shape_path)
     final_shapefile(num)
 
 
 if __name__ == "__main__":
-    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Bassin_versant/Bassin_versant_SJSR.shp"  # (must be projected in GCS_WGS_1984)
-    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Bassin_versant/Bassin_versant_PN.shp"  # (must be projected in GCS_WGS_1984)
-    main(CONST_lat_s6, CONST_lon_s6, CONST_lat_e6, CONST_lon_e6, shapefile_contour_path)
 
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/test.shp"
+    # main(shapefile_contour_path)
+
+    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Beloeil_munic.shp"
+    main(shapefile_contour_path)
+    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Chambly_munic.shp"
+    main(shapefile_contour_path)
+    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Lacolle_munic.shp"
+    main(shapefile_contour_path)
+    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Sabrevois_munic.shp"
+    main(shapefile_contour_path)
+    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Sorel_munic.shp"
+    main(shapefile_contour_path)
+    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/StMarc_munic.shp"
+    main(shapefile_contour_path)
+    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/SJSR_munic.shp"
+    main(shapefile_contour_path)
+
+
+
+
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/zone_test_mtm8.shp"
+    # # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/SJSR_munic.shp"
+    # main(shapefile_contour_path)

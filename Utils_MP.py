@@ -9,10 +9,11 @@
 import numpy as np
 import cv2 as cv
 import arcpy
-import arcpy.cartography as ca
+#import arcpy.cartography as ca
 import math
 import time
 import datetime
+import os
 
 
 start_time = time.time()  # start timer
@@ -23,6 +24,18 @@ def elapsed_time():
     return "Elapsed time: {}".format(temps)
 
 
+def new_shp_name(file_path):
+    while os.path.exists(file_path):
+        try:
+            int(file_path[-5])
+        except ValueError:
+            file_path = file_path[0:-4] + "1.shp"
+        else:
+            number = str(int(file_path[-5]) + 1)
+            file_path = file_path[0:-5] + number + ".shp"
+    return file_path
+
+
 def building_image(img_google):
     """
     Create a binary image with detected buildings
@@ -31,19 +44,24 @@ def building_image(img_google):
     """
     img_gray = cv.cvtColor(img_google, cv.COLOR_BGR2GRAY)
 
-    ret, thresh1 = cv.threshold(img_gray, 235, 255, cv.THRESH_BINARY)  # with residential buildings 236
-    ret, thresh2 = cv.threshold(img_gray, 237, 255, cv.THRESH_BINARY)  # without residential buildings 237
+    ret, thresh1 = cv.threshold(img_gray, 234, 255, cv.THRESH_BINARY)  # 234 # with residential buildings 236
+    ret, thresh2 = cv.threshold(img_gray, 237, 255, cv.THRESH_BINARY)  # 237 without residential buildings 237
     residentiel = thresh1 - thresh2  # residential buildings in white
 
     ret, thresh3 = cv.threshold(img_gray, 247, 255, cv.THRESH_BINARY)  # with commercial buildings
     ret, thresh4 = cv.threshold(img_gray, 248, 255, cv.THRESH_BINARY)  # without commercial buildings
     commercial = thresh3 - thresh4  # commercial buildings in white
+    #  TODO 3D cause nouveaux problèmes
+    ret, thresh5 = cv.threshold(img_gray, 239, 255, cv.THRESH_BINARY)  # with 3D buildings 239
+    ret, thresh6 = cv.threshold(img_gray, 240, 255, cv.THRESH_BINARY)  # without 3D buildings 240
+    building_3d = thresh5 - thresh6  # 3D buildings in white
 
     #  Erase white lines
-    minThick = 5  # Define minimum thickness
+    minThick = 15  # Define minimum thickness
     se = cv.getStructuringElement(cv.MORPH_ELLIPSE, (minThick, minThick))  # define a disk element
     img_bat = 255 * cv.morphologyEx(residentiel.astype('uint8'), cv.MORPH_OPEN, se)
     img_bat += 255 * cv.morphologyEx(commercial.astype('uint8'), cv.MORPH_OPEN, se)
+    img_bat += 255 * cv.morphologyEx(building_3d.astype('uint8'), cv.MORPH_OPEN, se)
     return img_bat
 
 
@@ -54,7 +72,6 @@ def tracer_contour(img_bat, img_google):
     :param img_google: (RBG image) Screenshot image
     """
     im2, contours, hierarchy = cv.findContours(img_bat, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-
     # Tracer les contours
     cv.drawContours(img_google, contours, -1, (0, 255, 0), 3)
     # Tracer individuellement
@@ -76,7 +93,6 @@ def image2features(img_bat, features, lat, lon):
     """
     #  create contours
     im2, contours, hierarchy = cv.findContours(img_bat, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-
     # create array of points
     polygones = [[] for _ in contours]
     points = []
@@ -111,12 +127,11 @@ def shapefile_creator(features, n):
     :param features: (list) List of Polygon objects
     :return (string) path of shapefile
     """
+    arcpy.env.overwriteOutput = True
     building_footprint_1 = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_1_{}.shp".format(n)
     building_footprint_2 = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_2_{}.shp".format(n)
     building_footprint_z21 = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_z21_{}.shp".format(n)  # final shapefile
-
     arcpy.CopyFeatures_management(features, building_footprint_1)
-
     #  project
     sr = arcpy.SpatialReference(3857)  # WGS_1984_Web_Mercator_Auxiliary_Sphere
     arcpy.DefineProjection_management(building_footprint_1, sr)  # Define Projection
@@ -124,9 +139,10 @@ def shapefile_creator(features, n):
     arcpy.Project_management(building_footprint_1, building_footprint_2, sr2)  # Project
     arcpy.Delete_management(building_footprint_1)
 
-    #  Aggregate overlaping buildings
-    #  AggregatePolygons(in_features, out_feature_class, aggregation_distance, {minimum_area}, {minimum_hole_size}, {orthogonality_option}, {barrier_features}, {out_table})
-    ca.AggregatePolygons(building_footprint_2, building_footprint_z21, 0.01, 2, 2, "ORTHOGONAL", "")
+    #  Dissolve overlaping buildings
+    arcpy.Dissolve_management(building_footprint_2, building_footprint_z21, multi_part="SINGLE_PART")
+    #ca.AggregatePolygons(building_footprint_2, building_footprint_z21, 0.01, 3, 3, "ORTHOGONAL", "")
+
     arcpy.Delete_management(building_footprint_2)
 
     return building_footprint_z21
@@ -171,7 +187,7 @@ def translation(coord, lat, lon):
     :return coord: (list) List of Polygon points translated coordinates
     """
     ty = merc_y(lat) - 73.43  # Y translation  window size = 6000 : 222.72
-    tx = merc_x(lon) - 73.15  # X translation  window size = 6000 : 222.47
+    tx = merc_x(lon) - 57.55  #- 73.15  # X translation  window size = 6000 : 222.47
     for i in range(len(coord)):
         for j in range(len(coord[i])):
             coord[i][j][1] = coord[i][j][1] + ty

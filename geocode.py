@@ -11,6 +11,7 @@ import sys
 import geocoder
 import ogr
 import osr
+import re
 from Utils_MP import *
 
 
@@ -27,8 +28,19 @@ def latlon2address(lat, lon):
         b = geocoder.bing([lat, lon], method="reverse", key="AjVyhHv7lq__hT5_XLZ8jU0WbQpUIEUhQ7_nlHDw9NlcID9jRJDYLSSkIQmuQJ82")
         if b.city is None and time.time() > timeout:  # if google can't find the address after a certain amount of time
             sys.exit("Bing ne trouve pas d'adresse, veuillez réessayer")
-    #return b.address, b.housenumber, b.street, b.city, b.state, b.postal, b.country
-    return b.address, b.street, b.city, b.state, b.postal, b.country
+    no_st = b.street
+    print no_st  # for bug detection
+    if b.street is None:
+        no, st = "0", "no info"
+    elif not no_st[0].isnumeric():
+        no = "0"
+        st = no_st
+    else:
+        match = re.match(r'(\d+)(?:-\d+(?=\s))?\s(.*)', no_st).groups()
+        no = match[0]
+        st = match[1]
+
+    return b.address, no, st, b.city, b.state, b.postal, b.country
 
 
 def geocode_shapefile(in_shapefile, out_shapefile):
@@ -38,13 +50,16 @@ def geocode_shapefile(in_shapefile, out_shapefile):
     :param out_shapefile: (string) output building shapefile
     """
     # make a copy of the input shapefile
-    if arcpy.Exists(out_shapefile):
+    # if arcpy.Exists(out_shapefile):
+    #     arcpy.Delete_management(out_shapefile)
+    # arcpy.Copy_management(in_shapefile, out_shapefile)
+    if os.path.exists(out_shapefile):
         arcpy.Delete_management(out_shapefile)
     arcpy.Copy_management(in_shapefile, out_shapefile)
 
     # create additionnal fields
     arcpy.AddField_management(out_shapefile, "Adresse", "TEXT", field_length=150)
-    # arcpy.AddField_management(outShapefile, "Num_Civ", "LONG", 9)
+    arcpy.AddField_management(out_shapefile, "Num_Civ", "LONG", 9)
     arcpy.AddField_management(out_shapefile, "Rue", "TEXT", field_length=80)
     arcpy.AddField_management(out_shapefile, "Ville", "TEXT", field_length=80)
     arcpy.AddField_management(out_shapefile, "Province", "TEXT", field_length=30)
@@ -66,8 +81,7 @@ def geocode_shapefile(in_shapefile, out_shapefile):
     coordTransform = osr.CoordinateTransformation(inSpatialRef, outSpatialRef)
 
     # add address information to output shapefile
-    # fields = ["Adresse", "Num_Civ", "Rue", "Ville", "Province", "CP", "Pays"]
-    fields = ["Adresse", "Rue", "Ville", "Province", "CP", "Pays"]
+    fields = ["Adresse", "Num_Civ", "Rue", "Ville", "Province", "CP", "Pays"]
     point = ogr.Geometry(ogr.wkbPoint)
     with arcpy.da.UpdateCursor(out_shapefile, fields) as cursor:
         i = 0
@@ -89,8 +103,8 @@ def main():
     Main function.
     Change the path of inShapefile and outShapefile for the desired building shapefile to geocode.
     """
-    inShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/BV_PetiteNation.shp"
-    outShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/BV_PetiteNation_geocode.shp"
+    inShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint.shp"
+    outShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_geocode.shp"
     geocode_shapefile(inShapefile, outShapefile)
 
 

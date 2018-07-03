@@ -201,7 +201,6 @@ def line_creator2(in_adr):
     for k in range(len(in_adr)-1):
         arcpy.Delete_management("E:/Charles_Tousignant/Python_workspace/Gari/shapefile/localized_building_{}.shp".format(k+1))
 
-
     tmp_buf = arcpy.Buffer_analysis(in_features=localized_buildings_final,
                                     out_feature_class=r"in_memory\tempOutput",
                                     buffer_distance_or_field="8 FEET",
