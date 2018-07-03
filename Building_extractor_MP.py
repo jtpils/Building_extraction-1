@@ -23,7 +23,7 @@ import osr
 CONST_dlat = 0.000930  # 0.000882  # latitude difference between screenshots
 CONST_dlon = 0.001330  # 0.001280  # longitude difference between screenshots
 shapefile_list = []
-
+#push test
 
 def final_shapefile(n):
     """
@@ -191,8 +191,8 @@ def main(shape_path):
 
 if __name__ == "__main__":
 
-    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/test.shp"
-    # main(shapefile_contour_path)
+    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/test.shp"
+    main(shapefile_contour_path)
 
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Beloeil_munic.shp"
     # main(shapefile_contour_path)
