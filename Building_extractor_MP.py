@@ -67,7 +67,7 @@ def final_shapefile(n):
             lyr.DeleteFeature(feat.GetFID())
         j += 1
     # #ds = None
-
+    print("Small polygons removed.                                                                 {}".format(elapsed_time()))
     arcpy.Delete_management(building_footprint0)
     print("Final shapefile complete.                                                               {}".format(elapsed_time()))
 
@@ -108,7 +108,7 @@ def scan(lat, lon_s, lon_e, n, contour_buffer):
             im = im.crop((418, 0, 2418, 2000))  # get rid of the left panel
             im_path = "E:/Charles_Tousignant/Python_workspace/Gari/screenshots/screenshot{}.png".format(counter_screenshots + 1 + n*1000000)
             im.save(im_path)
-            image_bat = building_image(cv.imread(im_path))
+            image_bat = building_image(im_path)
             print("Process {}: Detecting and extracting building footprints from screenshot #{}...           {}".format(n, counter_screenshots + 1, elapsed_time()))
             image2features(image_bat, feat, lat, lon_s)
             os.remove(im_path)  # delete PNG
@@ -189,26 +189,38 @@ def main(shape_path):
 
 
 if __name__ == "__main__":
+    # shapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint.shp"
+    # RemovePolygonHoles_management(shapefile)
 
-    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/test.shp"
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/zone_test.shp"
     # main(shapefile_contour_path)
 
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Beloeil_munic.shp"
     # main(shapefile_contour_path)
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Chambly_munic.shp"
     # main(shapefile_contour_path)
-    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Lacolle_munic.shp"
-    main(shapefile_contour_path)
-    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Sabrevois_munic.shp"
-    main(shapefile_contour_path)
-    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Sorel_munic.shp"
-    main(shapefile_contour_path)
-    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/StMarc_munic.shp"
-    main(shapefile_contour_path)
-    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/SJSR_munic.shp"
-    main(shapefile_contour_path)
 
 
-    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/zone_test_mtm8.shp"
-    # # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/SJSR_munic.shp"
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Lacolle_munic.shp"
     # main(shapefile_contour_path)
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Sabrevois_munic.shp"
+    # main(shapefile_contour_path)
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Sorel_munic.shp"
+    # main(shapefile_contour_path)
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/StMarc_munic.shp"
+    # main(shapefile_contour_path)
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/SJSR_munic.shp"
+    # main(shapefile_contour_path)
+
+    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/Duhamel_munic.shp"
+    main(shapefile_contour_path)
+    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/LacSimon_munic.shp"
+    main(shapefile_contour_path)
+    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/Papineauville_munic.shp"
+    main(shapefile_contour_path)
+    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/Plaisance_munic.shp"
+    main(shapefile_contour_path)
+    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/StAndre_munic.shp"
+    main(shapefile_contour_path)
+
+
