@@ -13,14 +13,13 @@ import multiprocessing
 from Utils_MP import *
 import fiona
 from shapely.geometry import Point, shape
-#from shapely.geometry import shape
 from PIL import Image
 from io import BytesIO
 import ogr
 import osr
 #import arcpy.cartography as ca
 
-CONST_dlat = 0.000930  # 0.000882  # latitude difference between screenshots
+CONST_dlat = 0.000926  # 0.000882  # latitude difference between screenshots
 CONST_dlon = 0.001330  # 0.001280  # longitude difference between screenshots
 shapefile_list = []
 
@@ -194,10 +193,10 @@ if __name__ == "__main__":
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/test.shp"
     # main(shapefile_contour_path)
 
-    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Beloeil_munic.shp"
-    main(shapefile_contour_path)
-    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Chambly_munic.shp"
-    main(shapefile_contour_path)
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Beloeil_munic.shp"
+    # main(shapefile_contour_path)
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Chambly_munic.shp"
+    # main(shapefile_contour_path)
     shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Lacolle_munic.shp"
     main(shapefile_contour_path)
     shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Sabrevois_munic.shp"
@@ -208,8 +207,6 @@ if __name__ == "__main__":
     main(shapefile_contour_path)
     shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/SJSR_munic.shp"
     main(shapefile_contour_path)
-
-
 
 
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/zone_test_mtm8.shp"
