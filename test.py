@@ -8,6 +8,12 @@ import osr
 
 import arcpy
 import arcpy.cartography as ca
+
+import sys
+# sys.path.extend([r"C:\Program Files\QGIS Valmiera\apps", r"C:\Program Files\QGIS Valmiera\apps\qgis\bin", r"C:\Program Files\QGIS Valmiera\apps\Python27"])
+sys.path.extend([r"C:\OSGeo4W64\apps\qgis", r"C:\Program Files\QGIS 3.0\apps\Python36"])
+import qgis.core
+
 # building_footprint0 = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_del.shp"
 # building_footprint = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_del_dis.shp"
 #
@@ -87,10 +93,9 @@ import geopandas as gpd
 from shapely.geometry import mapping, Polygon
 import fiona
 
-# Here's an example Shapely geometry
-# a = [[(0, 0), (0, 1), (1, 1), (0, 0)], [(0, 0), (0, 1), (1, 1), (0, 0)]]
-# poly = MultiPolygon(a)
-# print poly.area
+
+
+from qgis.core import *
 
 
 
@@ -166,7 +171,6 @@ import fiona
 # cv.imshow('Image closing', closing)
 # cv.waitKey(0)
 # cv.destroyAllWindows()
-# #  TODO 3D cause nouveaux problèmes
 # ret, thresh5 = cv.threshold(gray2, 238, 255, cv.THRESH_BINARY)  # with 3D buildings 239
 # ret, thresh6 = cv.threshold(gray2, 240, 255, cv.THRESH_BINARY)  # without 3D buildings 240
 # building_3d = thresh5 - thresh6  # 3D buildings in white

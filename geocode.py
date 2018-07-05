@@ -5,7 +5,7 @@
 # Author : Charles Tousignant
 # Project : GARI
 # Description : Géocode automatique des addresses de tout les bâtiments d'un
-# shapefile. Entre les addresses dans différents champs de la table attributaire
+# shapefile. Entre les adresses dans différents champs de la table attributaire
 # ---------------------------------------------------------------------------
 import sys
 import geocoder
@@ -74,8 +74,14 @@ def geocode_shapefile(in_shapefile, out_shapefile):
         centroid.append(var[0])
 
     # prepare coordinates transform to WGS 84
-    inSpatialRef = osr.SpatialReference()
-    inSpatialRef.ImportFromEPSG(2950)  # NAD_1983_CSRS_MTM_8
+    # inSpatialRef = osr.SpatialReference()
+    # inSpatialRef.ImportFromEPSG(2950)  # NAD_1983_CSRS_MTM_8
+
+    driver = ogr.GetDriverByName('ESRI Shapefile')
+    dataset = driver.Open(in_shapefile)
+    layer = dataset.GetLayer()
+    inSpatialRef = layer.GetSpatialRef()
+
     outSpatialRef = osr.SpatialReference()
     outSpatialRef.ImportFromEPSG(4326)  # WGS 84
     coordTransform = osr.CoordinateTransformation(inSpatialRef, outSpatialRef)
@@ -103,7 +109,8 @@ def main():
     Main function.
     Change the path of inShapefile and outShapefile for the desired building shapefile to geocode.
     """
-    inShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint.shp"
+    #inShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/LacSimon_bat.shp"
+    inShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Lacolle_bat.shp"
     outShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_geocode.shp"
     geocode_shapefile(inShapefile, outShapefile)
 

@@ -19,7 +19,7 @@ import ogr
 import osr
 #import arcpy.cartography as ca
 
-CONST_dlat = 0.000926  # 0.000882  # latitude difference between screenshots
+CONST_dlat = 0.000920  # 0.000882  # latitude difference between screenshots
 CONST_dlon = 0.001330  # 0.001280  # longitude difference between screenshots
 shapefile_list = []
 
@@ -35,7 +35,7 @@ def final_shapefile(n):
     building_footprint0 = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_del.shp"
     building_footprint = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint.shp"  # final shapefile
 
-    print("Creating final shapefile...")
+    print("Creating final shapefile...                                                             {}".format(elapsed_time()))
     print("Merging all previously created shapefiles...")
     arcpy.Merge_management(shapefile_list, building_footprint0)
     for i in range(n):
@@ -189,7 +189,7 @@ def main(shape_path):
 
 
 if __name__ == "__main__":
-    # shapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint.shp"
+    # shapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Lacolle_bat.shp"
     # RemovePolygonHoles_management(shapefile)
 
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/zone_test.shp"
@@ -201,21 +201,22 @@ if __name__ == "__main__":
     # main(shapefile_contour_path)
 
 
-    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Lacolle_munic.shp"
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Lacolle_munic.shp"  # DONE OK geocode
     # main(shapefile_contour_path)
-    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Sabrevois_munic.shp"
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Sabrevois_munic.shp"  # DONE OK geocode
     # main(shapefile_contour_path)
-    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Sorel_munic.shp"
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Sorel_munic.shp"  # DONE refaire
     # main(shapefile_contour_path)
-    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/StMarc_munic.shp"
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/StMarc_munic.shp"  # DONE refaire
     # main(shapefile_contour_path)
-    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/SJSR_munic.shp"
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/SJSR_munic.shp"  # DONE refaire
     # main(shapefile_contour_path)
 
-    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/Duhamel_munic.shp"
-    main(shapefile_contour_path)
-    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/LacSimon_munic.shp"
-    main(shapefile_contour_path)
+
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/Duhamel_munic.shp"  # DONE OK geocode
+    # main(shapefile_contour_path)
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/LacSimon_munic.shp"  # DONE OK geocode
+    # main(shapefile_contour_path)
     shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/Papineauville_munic.shp"
     main(shapefile_contour_path)
     shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/Plaisance_munic.shp"

@@ -243,8 +243,8 @@ def RemovePolygonHoles_management(in_fc, threshold=0.0):
     The function removes holes from a polygon feature class.
     If threshold is given, only the holes smaller than the threshold will be removed.
     If no threshold is given, it removes all holes.
-    in_fc is a polygon feature class.
-    threshold is numeric.
+    :param in_fc: is a polygon feature class.
+    :param threshold: is numeric.
     """
     desc = arcpy.Describe(in_fc)
     if desc.dataType !="FeatureClass" and desc.dataType != "ShapeFile":
@@ -276,16 +276,16 @@ def RemovePolygonHoles_management(in_fc, threshold=0.0):
                             new_part.add(part[k])
                         for i in range(len(null_point_index)):
                             pointArray = arcpy.Array()
-                            #determine if the None point is the last one
+                            # determine if the None point is the last one
                             if i+1 < len(null_point_index):
                                 for j in range(null_point_index[i] + 1, null_point_index[i+1]):
                                     pointArray.add(part[j])
                             else:
                                 for j in range(null_point_index[i] + 1, len(part)):
                                     pointArray.add(part[j])
-                            #create a polygon to check shape area against the given threshold
+                            # create a polygon to check shape area against the given threshold
                             inner_poly = arcpy.Polygon(pointArray)
-                            #if larger than threshold, then add to the new part Array
+                            # if larger than threshold, then add to the new part Array
                             if inner_poly.area > threshold:
                                 if i+1 < len(null_point_index):
                                     for k in range(null_point_index[i], null_point_index[i+1]):
@@ -294,14 +294,14 @@ def RemovePolygonHoles_management(in_fc, threshold=0.0):
                                     for k in range(null_point_index[i], len(part)):
                                         new_part.add(part[k])
                         new_shape.add(new_part)
-                    #if interior does not exist, add the whole part
+                    # if interior does not exist, add the whole part
                     else:
                         new_shape.add(part)
                 else:
-                    #get the first None point index
+                    # get the first None point index
                     first_null_point_index = 0
                     for i in range(len(part)):
-                        if part[i] == None:
+                        if part[i] is None:
                             first_null_point_index = i
                             break
                     if first_null_point_index == 0:
