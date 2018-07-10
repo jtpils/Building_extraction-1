@@ -23,16 +23,25 @@ def latlon2address(lat, lon):
     :return n: (tuple) address of coordinate (address, street, city, state, postal, country)
     """
     b = geocoder.bing([lat, lon], method="reverse", key="AjVyhHv7lq__hT5_XLZ8jU0WbQpUIEUhQ7_nlHDw9NlcID9jRJDYLSSkIQmuQJ82")  # quota de 125 000 requêtes/année
-    timeout = time.time() + 7
+    timeout = time.time() + 10
     while b.city is None:
         b = geocoder.bing([lat, lon], method="reverse", key="AjVyhHv7lq__hT5_XLZ8jU0WbQpUIEUhQ7_nlHDw9NlcID9jRJDYLSSkIQmuQJ82")
         if b.city is None and time.time() > timeout:  # if google can't find the address after a certain amount of time
-            sys.exit("Bing ne trouve pas d'adresse, veuillez réessayer")
+            return "no info", "0", "no info", "no info", "no info", "no info", "no info"
+            # sys.exit("Bing ne trouve pas d'adresse, veuillez réessayer")
     no_st = b.street
-    print no_st  # for bug detection
+    print(no_st)  # for bug detection
+    # no info
     if b.street is None:
         no, st = "0", "no info"
+    # no house number
     elif not no_st[0].isnumeric():
+        no = "0"
+        st = no_st
+    # no house number and street name starting with a number (ex: 4th street)
+    elif (no_st[0].isnumeric() and no_st[1].isalpha()) or \
+            (no_st[0].isnumeric() and no_st[1].isnumeric() and no_st[2].isalpha()) or \
+            (no_st[0].isnumeric() and no_st[1].isnumeric() and no_st[2].isnumeric() and no_st[3].isalpha()):
         no = "0"
         st = no_st
     else:
@@ -50,9 +59,6 @@ def geocode_shapefile(in_shapefile, out_shapefile):
     :param out_shapefile: (string) output building shapefile
     """
     # make a copy of the input shapefile
-    # if arcpy.Exists(out_shapefile):
-    #     arcpy.Delete_management(out_shapefile)
-    # arcpy.Copy_management(in_shapefile, out_shapefile)
     if os.path.exists(out_shapefile):
         arcpy.Delete_management(out_shapefile)
     arcpy.Copy_management(in_shapefile, out_shapefile)
@@ -72,10 +78,6 @@ def geocode_shapefile(in_shapefile, out_shapefile):
     for x in np.nditer(np_array):
         var = np.array(x).tolist()
         centroid.append(var[0])
-
-    # prepare coordinates transform to WGS 84
-    # inSpatialRef = osr.SpatialReference()
-    # inSpatialRef.ImportFromEPSG(2950)  # NAD_1983_CSRS_MTM_8
 
     driver = ogr.GetDriverByName('ESRI Shapefile')
     dataset = driver.Open(in_shapefile)
@@ -109,9 +111,9 @@ def main():
     Main function.
     Change the path of inShapefile and outShapefile for the desired building shapefile to geocode.
     """
-    #inShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/LacSimon_bat.shp"
-    inShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Lacolle_bat.shp"
-    outShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_geocode.shp"
+    #inShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/StAndre_bat.shp"
+    inShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/StMarc_bat.shp"
+    outShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/StMarc_bat_geocode.shp"
     geocode_shapefile(inShapefile, outShapefile)
 
 

@@ -1,18 +1,15 @@
 # # -*- coding: utf-8 -*-
-import ogr
-import sys
-import geopandas as gpd
-from shapely.geometry import MultiPolygon, JOIN_STYLE
-import itertools
-import osr
+# import ogr
+# import sys
+# import geopandas as gpd
+# from shapely.geometry import MultiPolygon, JOIN_STYLE
+# import itertools
+# import osr
+#
+# import arcpy
+# import arcpy.cartography as ca
 
-import arcpy
-import arcpy.cartography as ca
-
 import sys
-# sys.path.extend([r"C:\Program Files\QGIS Valmiera\apps", r"C:\Program Files\QGIS Valmiera\apps\qgis\bin", r"C:\Program Files\QGIS Valmiera\apps\Python27"])
-sys.path.extend([r"C:\OSGeo4W64\apps\qgis", r"C:\Program Files\QGIS 3.0\apps\Python36"])
-import qgis.core
 
 # building_footprint0 = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_del.shp"
 # building_footprint = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_del_dis.shp"
@@ -51,17 +48,8 @@ import qgis.core
 
 
 
-
-
-
-
-
-
-
-
-
 ###############################fonctionne mais pas de proj. alternative a aggragate polygons###########
-import geopandas as gpd
+# import geopandas as gpd
 # eps=5 # width for dilating and eroding (buffer)
 # dist = 2  # threshold distance
 # # read the original shapefile
@@ -89,19 +77,27 @@ import geopandas as gpd
 # from shapely.geometry import Polygon
 # filled_shape = Polygon(shape_with_holes.exterior)
 
-
-from shapely.geometry import mapping, Polygon
-import fiona
-
+import re
+no_st = unicode("2 333e rue", 'utf-8')
 
 
-from qgis.core import *
+if not no_st[0].isnumeric():
+    no = "0"
+    st = no_st
+elif (no_st[0].isnumeric() and no_st[1].isalpha()) or \
+        (no_st[0].isnumeric() and no_st[1].isnumeric() and no_st[2].isalpha()) or \
+        (no_st[0].isnumeric() and no_st[1].isnumeric() and no_st[2].isnumeric() and no_st[3].isalpha()):
+    no = "0"
+    st = no_st
 
 
+else:
+    match = re.match(r'(\d+)(?:-\d+(?=\s))?\s(.*)', no_st).groups()
+    no = match[0]
+    st = match[1]
 
-
-
-
+print no
+print st
 ###########  TEST couleur#########################
 # import Utils_MP
 # import cv2 as cv

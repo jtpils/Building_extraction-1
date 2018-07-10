@@ -148,11 +148,10 @@ def shapefile_creator(features, n):
 
     #  Dissolve overlaping buildings
     arcpy.Dissolve_management(building_footprint_2, building_footprint_z21, multi_part="SINGLE_PART")
-    RemovePolygonHoles_management(building_footprint_z21)
+    #RemovePolygonHoles_management(building_footprint_z21)
     #ca.AggregatePolygons(building_footprint_2, building_footprint_z21, 0.01, 3, 3, "ORTHOGONAL", "")
 
     arcpy.Delete_management(building_footprint_2)
-
     return building_footprint_z21
 
 
@@ -194,8 +193,8 @@ def translation(coord, lat, lon):
     :param lon: (float) Longitude of the screenshot URL
     :return coord: (list) List of Polygon points translated coordinates
     """
-    ty = merc_y(lat) - 73.43  # Y translation  window size = 6000 : 222.72
-    tx = merc_x(lon) - 57.55  #- 73.15  # X translation  window size = 6000 : 222.47
+    ty = merc_y(lat) - 73.43  # Y translation
+    tx = merc_x(lon) - 57.55  # X translation
     for i in range(len(coord)):
         for j in range(len(coord[i])):
             coord[i][j][1] = coord[i][j][1] + ty
@@ -225,7 +224,7 @@ def merc_y(lat):
     if lat < -89.5:
         lat = -89.5
     r_major = 6378137.0
-    r_minor = 6378137.0  # 6356752.3142
+    r_minor = 6378137.0  # 6356752.3142 if ellipse
     temp = r_minor / r_major
     eccent = math.sqrt(1 - temp ** 2)
     phi = math.radians(lat)
@@ -247,12 +246,12 @@ def RemovePolygonHoles_management(in_fc, threshold=0.0):
     :param threshold: is numeric.
     """
     desc = arcpy.Describe(in_fc)
-    if desc.dataType !="FeatureClass" and desc.dataType != "ShapeFile":
-        print "Invalid data type. The input is supposed to be a Polygon FeatureClass or Shapefile."
+    if desc.dataType != "FeatureClass" and desc.dataType != "ShapeFile":
+        print("Invalid data type. The input is supposed to be a Polygon FeatureClass or Shapefile.")
         return
     else:
         if desc.shapeType != "Polygon":
-            print "The input is supposed to be a Polygon FeatureClass or Shapefile."
+            print("The input is supposed to be a Polygon FeatureClass or Shapefile.")
             return
     if threshold < 0.0:
         threshold = 0.0

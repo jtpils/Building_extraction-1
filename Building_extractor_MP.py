@@ -59,16 +59,14 @@ def final_shapefile(n):
         feat = lyr.GetFeature(j)
         geom = i.GetGeometryRef()
         area = geom.GetArea()
-        #print 'Area =', area
-        #lyr.SetFeature(i)
         i.SetField("Area", area)
         lyr.SetFeature(i)
         if area < 4.0:  # smaller than
             lyr.DeleteFeature(feat.GetFID())
         j += 1
-    # #ds = None
-    print("Small polygons removed.                                                                 {}".format(elapsed_time()))
+    print("Small polygons removed. Removing holes...                                               {}".format(elapsed_time()))
     arcpy.Delete_management(building_footprint0)
+    RemovePolygonHoles_management(building_footprint)
     print("Final shapefile complete.                                                               {}".format(elapsed_time()))
 
 
@@ -189,8 +187,8 @@ def main(shape_path):
 
 
 if __name__ == "__main__":
-    # shapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Lacolle_bat.shp"
-    # RemovePolygonHoles_management(shapefile)
+    shapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/SJSR_bat.shp"
+    RemovePolygonHoles_management(shapefile)
 
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/zone_test.shp"
     # main(shapefile_contour_path)
@@ -199,12 +197,10 @@ if __name__ == "__main__":
     # main(shapefile_contour_path)
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Chambly_munic.shp"
     # main(shapefile_contour_path)
-
-
-    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Lacolle_munic.shp"  # DONE OK geocode
-    # main(shapefile_contour_path)
-    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Sabrevois_munic.shp"  # DONE OK geocode
-    # main(shapefile_contour_path)
+    # # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Lacolle_munic.shp"  # DONE OK geocode
+    # # main(shapefile_contour_path)
+    # # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Sabrevois_munic.shp"  # DONE OK geocode
+    # # main(shapefile_contour_path)
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Sorel_munic.shp"  # DONE refaire
     # main(shapefile_contour_path)
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/StMarc_munic.shp"  # DONE refaire
@@ -217,11 +213,11 @@ if __name__ == "__main__":
     # main(shapefile_contour_path)
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/LacSimon_munic.shp"  # DONE OK geocode
     # main(shapefile_contour_path)
-    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/Papineauville_munic.shp"
-    main(shapefile_contour_path)
-    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/Plaisance_munic.shp"
-    main(shapefile_contour_path)
-    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/StAndre_munic.shp"
-    main(shapefile_contour_path)
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/Papineauville_munic.shp"  # DONE OK geocode
+    # main(shapefile_contour_path)
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/Plaisance_munic.shp"  # DONE OK geocode
+    # main(shapefile_contour_path)
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/StAndre_munic.shp"  # DONE OK geocode
+    # main(shapefile_contour_path)
 
 
