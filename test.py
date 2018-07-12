@@ -1,103 +1,89 @@
-# # -*- coding: utf-8 -*-
-# import ogr
-# import sys
-# import geopandas as gpd
-# from shapely.geometry import MultiPolygon, JOIN_STYLE
-# import itertools
-# import osr
+# -*- coding: utf-8 -*-
+
+import numpy as np
+
+from sklearn.cluster import DBSCAN
+from sklearn import metrics
+from sklearn.datasets.samples_generator import make_blobs
+from sklearn.preprocessing import StandardScaler
+
+data = np.array([1,2,3])
+a = np.array([True,False,False])
+b = np.array([True,True,False])
+
+x = data[a | b]
+print x
+# # #############################################################################
+# # Generate sample data
+# centers = [[1, 1], [-1, -1], [1, -1]]
+# X, labels_true = make_blobs(n_samples=750, centers=centers, cluster_std=0.4,
+#                             random_state=0)
+# X = StandardScaler().fit_transform(X)
 #
-# import arcpy
-# import arcpy.cartography as ca
-
-import sys
-
-# building_footprint0 = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_del.shp"
-# building_footprint = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_del_dis.shp"
+# # #############################################################################
+# # Compute DBSCAN
+# db = DBSCAN(eps=0.3, min_samples=10).fit(X)
+# core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
+# core_samples_mask[db.core_sample_indices_] = True
+# labels = db.labels_
 #
-# arcpy.Dissolve_management(building_footprint0, building_footprint, multi_part="SINGLE_PART")
-
-# file_path = r"E:\Charles_Tousignant\Python_workspace\Gari\shapefile\building_footprint_del_dis.shp"
-# file_path_out = r"E:\Charles_Tousignant\Python_workspace\Gari\shapefile\copy_out.shp"
-# # arcpy.AddField_management(file_path, "superficie", "FLOAT", 9)
-# # arcpy.AddGeometryAttributes_management(file_path, "CENTROID;PERIMETER_LENGTH;AREA", "METERS", "SQUARE_METERS")
-# table = r"E:\Charles_Tousignant\Python_workspace\Gari\shapefile\table_out"
-
-# arcpy.MakeTableView_management(file_path, table)
-# arcpy.SelectLayerByAttribute_management(table, "NEW_SELECTION", '"POLY_AREA" > 4.0')
-# arcpy.Eliminate_management(file_path, file_path_out)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-###############################fonctionne mais pas de proj. alternative a aggragate polygons###########
-# import geopandas as gpd
-# eps=5 # width for dilating and eroding (buffer)
-# dist = 2  # threshold distance
-# # read the original shapefile
-# df = gpd.read_file("E:/Charles_Tousignant/Python_workspace/Gari/shapefile/extr.shp")
-# crs = df.crs
-# print type(crs)
-# # create new result shapefile
-# col = ['geometry']
-# res = gpd.GeoDataFrame(columns=col)
-# # iterate over pairs of polygons in the GeoDataFrame
-# for i, j in list(itertools.combinations(df.index, 2)):
-#  distance = df.geometry.ix[i].distance( df.geometry.ix[j]) # distance between polygons i and j in the shapefile
-#  print distance
-#  if distance < dist:
-#      e = MultiPolygon([ df.geometry.ix[i],df.geometry.ix[j]])
-#      fx = e.buffer(eps, 1, join_style=JOIN_STYLE.mitre).buffer(-eps, 1, join_style=JOIN_STYLE.mitre)
-#      res = res.append({'geometry':fx}, ignore_index=True)
-#      print type(res)
+# # Number of clusters in labels, ignoring noise if present.
+# n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
 #
-# # save the resulting shapefile
-# #res = res.to_crs(epsg=2950)
-# res.to_file("E:/Charles_Tousignant/Python_workspace/Gari/shapefile/aggregates.shp")
-#########################################################################################################
-# import shapely
-# from shapely.geometry import Polygon
-# filled_shape = Polygon(shape_with_holes.exterior)
+# print('Estimated number of clusters: %d' % n_clusters_)
+# print("Homogeneity: %0.3f" % metrics.homogeneity_score(labels_true, labels))
+# print("Completeness: %0.3f" % metrics.completeness_score(labels_true, labels))
+# print("V-measure: %0.3f" % metrics.v_measure_score(labels_true, labels))
+# print("Adjusted Rand Index: %0.3f"
+#       % metrics.adjusted_rand_score(labels_true, labels))
+# print("Adjusted Mutual Information: %0.3f"
+#       % metrics.adjusted_mutual_info_score(labels_true, labels))
+# print("Silhouette Coefficient: %0.3f"
+#       % metrics.silhouette_score(X, labels))
+#
+# # #############################################################################
+# # Plot result
+# import matplotlib.pyplot as plt
+#
+# # Black removed and is used for noise instead.
+# unique_labels = set(labels)
+# colors = [plt.cm.Spectral(each)
+#           for each in np.linspace(0, 1, len(unique_labels))]
+# for k, col in zip(unique_labels, colors):
+#     if k == -1:
+#         # Black used for noise.
+#         col = [0, 0, 0, 1]
+#
+#     class_member_mask = (labels == k)
+#
+#     xy = X[class_member_mask & core_samples_mask]
+#     plt.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=tuple(col),
+#              markeredgecolor='k', markersize=14)
+#
+#     xy = X[class_member_mask & ~core_samples_mask]
+#     plt.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=tuple(col),
+#              markeredgecolor='k', markersize=6)
+#
+# plt.title('Estimated number of clusters: %d' % n_clusters_)
+# plt.show()
 
-import re
-no_st = unicode("2 333e rue", 'utf-8')
 
 
-if not no_st[0].isnumeric():
-    no = "0"
-    st = no_st
-elif (no_st[0].isnumeric() and no_st[1].isalpha()) or \
-        (no_st[0].isnumeric() and no_st[1].isnumeric() and no_st[2].isalpha()) or \
-        (no_st[0].isnumeric() and no_st[1].isnumeric() and no_st[2].isnumeric() and no_st[3].isalpha()):
-    no = "0"
-    st = no_st
 
 
-else:
-    match = re.match(r'(\d+)(?:-\d+(?=\s))?\s(.*)', no_st).groups()
-    no = match[0]
-    st = match[1]
 
-print no
-print st
+
+
+
+
+
+
+
+
+
+
+
+
 ###########  TEST couleur#########################
 # import Utils_MP
 # import cv2 as cv
