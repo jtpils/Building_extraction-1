@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import numpy as np
 from laspy.file import File
 import laspy
@@ -8,36 +9,18 @@ from sklearn.cluster import DBSCAN
 from sklearn import metrics
 from sklearn.datasets.samples_generator import make_blobs
 from sklearn.preprocessing import StandardScaler
+from osgeo import ogr
+from shapely.geometry import mapping, Point
+import fiona
 np.set_printoptions(threshold=np.nan)
 
 # inFile = classified .las
 #inFile = File("E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\LIDAR_zone_test_petit2.las", mode="r")
 
-# extract roof points
-# header = laspy.header.Header()
-# outFile = laspy.file.File("E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\output.las", mode="w", header=header)
-# x_list, y_list, z_list = [], [], []
-# for i in range(len(inFile.points)):
-#     if inFile.raw_classification[i] == 6:  # 6 = building roof
-#         x_list.append(inFile.x[i].item())
-#         y_list.append(inFile.y[i].item())
-#         z_list.append(inFile.z[i].item())
-#
-#
-# xmin = np.floor(np.min(x_list))
-# ymin = np.floor(np.min(y_list))
-# zmin = np.floor(np.min(z_list))
-# outFile.header.offset = [xmin, ymin, zmin]
-# outFile.header.scale = [0.001, 0.001, 0.001]
-# outFile.x = np.array(x_list)
-# outFile.y = np.array(y_list)
-# outFile.z = np.array(z_list)
-# outFile.close()
-
-#test = laspy.file.File("E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\LIDAR_6_maisons_toit.las")
-#test = laspy.file.File("E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\LIDAR_zone_test_toit.las")
-test = laspy.file.File("E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\LIDAR_zone_test_petit2_toit.las")
-dataset = np.vstack([test.x, test.y, test.z]).transpose()
+inLas = laspy.file.File("E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\LIDAR_6_maisons_toit.las")
+#inLas = laspy.file.File("E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\LIDAR_zone_test_toit.las")
+#inLas = laspy.file.File("E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\LIDAR_zone_test_petit2_toit.las")
+dataset = np.vstack([inLas.x, inLas.y, inLas.z]).transpose()
 
 
 # Compute DBSCAN
@@ -70,23 +53,79 @@ unique_labels = set(labels)
 colors = [plt.cm.Spectral(each)
           for each in np.linspace(0, 1, len(unique_labels))]
 
+point = ogr.Geometry(ogr.wkbPoint)
+point_list = []
+z_list = []
 for k, col in zip(unique_labels, colors):
     if k == -1:
         # Black used for noise.
         col = [0, 0, 0, 1]
+    print k
 
     class_member_mask = (labels == k)
     xyz = dataset[class_member_mask & core_samples_mask]
+    print len(xyz)
     plt.plot(xyz[:, 0], xyz[:, 1], 'o', markerfacecolor=tuple(col),
              markeredgecolor='k', markersize=14)
+    # xyz = dataset[class_member_mask & ~core_samples_mask]
+    # print len(xyz)
+    # plt.plot(xyz[:, 0], xyz[:, 1], 'o', markerfacecolor=tuple(col),
+    #          markeredgecolor='k', markersize=6)
+    # z = sum(xyz[:, 2])
 
-    xyz = dataset[class_member_mask & ~core_samples_mask]
-    plt.plot(xyz[:, 0], xyz[:, 1], 'o', markerfacecolor=tuple(col),
-             markeredgecolor='k', markersize=6)
+    #if len(xyz) != 0:
+    if len(xyz) > 25:
+        z = sum(xyz[:, 2]) / len(xyz) - 2.75  # pour 1 étage
+        var2 = np.std(xyz[:, 2])
+        print var2
+        #z = min(xyz[:, 2]) - 2.75  # pour 1 étage
+        z_list.append(z)
+        x_centroid = sum(xyz[:, 0]) / len(xyz)
+        y_centroid = sum(xyz[:, 1]) / len(xyz)
+        point = Point(x_centroid, y_centroid)
+        point_list.append(point)
+
+schema = {
+    'geometry': 'Point',
+    'properties': {'Z_RDC': 'float:9.2', 'id': 'int'}
+}
+
+with fiona.open('E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\hauteur_RDC.shp', 'w', 'ESRI Shapefile', schema) as c:
+    ## If there are multiple geometries, put the "for" loop here
+    for i in range(len(point_list)):
+        c.write({
+            'geometry': mapping(point_list[i]),
+            'properties': {'Z_RDC': z_list[i], 'id': i}
+        })
+
+
 
 plt.title('Estimated number of clusters: %d' % n_clusters_)
 plt.show()
 
+
+########################################################################
+# extract roof points
+# header = laspy.header.Header()
+# outFile = laspy.file.File("E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\output.las", mode="w", header=header)
+# x_list, y_list, z_list = [], [], []
+# for i in range(len(inFile.points)):
+#     if inFile.raw_classification[i] == 6:  # 6 = building roof
+#         x_list.append(inFile.x[i].item())
+#         y_list.append(inFile.y[i].item())
+#         z_list.append(inFile.z[i].item())
+#
+#
+# xmin = np.floor(np.min(x_list))
+# ymin = np.floor(np.min(y_list))
+# zmin = np.floor(np.min(z_list))
+# outFile.header.offset = [xmin, ymin, zmin]
+# outFile.header.scale = [0.001, 0.001, 0.001]
+# outFile.x = np.array(x_list)
+# outFile.y = np.array(y_list)
+# outFile.z = np.array(z_list)
+# outFile.close()
+#########################################################################
 
 #######################################################################################################
 # # Grab all of the points from the file.
