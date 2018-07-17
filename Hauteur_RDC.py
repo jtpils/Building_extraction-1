@@ -10,18 +10,22 @@ from sklearn import metrics
 from sklearn.datasets.samples_generator import make_blobs
 from sklearn.preprocessing import StandardScaler
 from osgeo import ogr
-from shapely.geometry import mapping, Point
+from shapely.geometry import mapping, Point, shape
 import fiona
+from rasterstats import zonal_stats, point_query
+
 np.set_printoptions(threshold=np.nan)
 
 # inFile = classified .las
 #inFile = File("E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\LIDAR_zone_test_petit2.las", mode="r")
 
-inLas = laspy.file.File("E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\LIDAR_6_maisons_toit.las")
-#inLas = laspy.file.File("E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\LIDAR_zone_test_toit.las")
+#inLas = laspy.file.File("E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\LIDAR_6_maisons_toit.las")
+inLas = laspy.file.File("E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\LIDAR_zone_test_toit.las")
 #inLas = laspy.file.File("E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\LIDAR_zone_test_petit2_toit.las")
 dataset = np.vstack([inLas.x, inLas.y, inLas.z]).transpose()
 
+MNT = r"E:\Charles_Tousignant\Python_workspace\Gari\shapefile\inputs\Modele Numerique de Terrain\mnt_grand.tif"
+bat = r"E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\batiment_google.shp"
 
 # Compute DBSCAN
 db = DBSCAN(eps=2, min_samples=15).fit(dataset)
@@ -32,17 +36,7 @@ labels = db.labels_
 # Number of clusters in labels, ignoring noise if present.
 n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
 
-# print('Estimated number of clusters: %d' % n_clusters_)
-# print("Homogeneity: %0.3f" % metrics.homogeneity_score(labels_true, labels))
-# print("Completeness: %0.3f" % metrics.completeness_score(labels_true, labels))
-# print("V-measure: %0.3f" % metrics.v_measure_score(labels_true, labels))
-# print("Adjusted Rand Index: %0.3f"
-#       % metrics.adjusted_rand_score(labels_true, labels))
-# print("Adjusted Mutual Information: %0.3f"
-#       % metrics.adjusted_mutual_info_score(labels_true, labels))
-# print("Silhouette Coefficient: %0.3f"
-#       % metrics.silhouette_score(X, labels))
-#
+
 # #############################################################################
 # Plot result
 
@@ -55,39 +49,53 @@ colors = [plt.cm.Spectral(each)
 
 point = ogr.Geometry(ogr.wkbPoint)
 point_list = []
-z_list = []
+z_rdc_list = []
+nb_etage_list = []
+
 for k, col in zip(unique_labels, colors):
     if k == -1:
         # Black used for noise.
         col = [0, 0, 0, 1]
-    print k
+    # print k
 
     class_member_mask = (labels == k)
     xyz = dataset[class_member_mask & core_samples_mask]
-    print len(xyz)
+
     plt.plot(xyz[:, 0], xyz[:, 1], 'o', markerfacecolor=tuple(col),
              markeredgecolor='k', markersize=14)
     # xyz = dataset[class_member_mask & ~core_samples_mask]
     # print len(xyz)
     # plt.plot(xyz[:, 0], xyz[:, 1], 'o', markerfacecolor=tuple(col),
     #          markeredgecolor='k', markersize=6)
-    # z = sum(xyz[:, 2])
+
 
     #if len(xyz) != 0:
-    if len(xyz) > 25:
-        z = sum(xyz[:, 2]) / len(xyz) - 2.75  # pour 1 étage
-        var2 = np.std(xyz[:, 2])
-        print var2
-        #z = min(xyz[:, 2]) - 2.75  # pour 1 étage
-        z_list.append(z)
+    if len(xyz) > 25:  # minimum number of points
+        # var2 = np.std(xyz[:, 2])
+        # print var2
+        nb_etage = 1
         x_centroid = sum(xyz[:, 0]) / len(xyz)
         y_centroid = sum(xyz[:, 1]) / len(xyz)
-        point = Point(x_centroid, y_centroid)
-        point_list.append(point)
+        pt = Point(x_centroid, y_centroid)
+        for batiment in fiona.open(bat):
+            if pt.within(shape(batiment['geometry'])):
+                poly = shape(batiment['geometry'])
+                zs = zonal_stats(poly, MNT)
+                zs_min = zs[0]['min']
+                zs_max = zs[0]['max']
+                zs_mean = zs[0]['mean']
+                point_list.append(pt)
+                #z_rdc = sum(xyz[:, 2]) / len(xyz)# - 2.75  # pour 1 étage
+                z_rdc = min(xyz[:, 2]) - 2.50  # pour 1 étage
+                while z_rdc > zs_mean + 2.50:  # au moins 25cm au desus du sol
+                    nb_etage += 1
+                    z_rdc = z_rdc - 2.5
+                z_rdc_list.append(z_rdc)
+                nb_etage_list.append(nb_etage)
 
 schema = {
     'geometry': 'Point',
-    'properties': {'Z_RDC': 'float:9.2', 'id': 'int'}
+    'properties': {'Z_RDC': 'float:9.2', 'nb_etage': 'int'}
 }
 
 with fiona.open('E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\hauteur_RDC.shp', 'w', 'ESRI Shapefile', schema) as c:
@@ -95,9 +103,8 @@ with fiona.open('E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_R
     for i in range(len(point_list)):
         c.write({
             'geometry': mapping(point_list[i]),
-            'properties': {'Z_RDC': z_list[i], 'id': i}
+            'properties': {'Z_RDC': z_rdc_list[i], 'nb_etage': nb_etage_list[i]}
         })
-
 
 
 plt.title('Estimated number of clusters: %d' % n_clusters_)
