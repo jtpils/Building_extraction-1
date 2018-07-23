@@ -126,29 +126,29 @@ def image2features(img_bat, features, lat, lon):
                 arcpy.Array([arcpy.Point(*coords) for coords in polygone])))
 
 
-def shapefile_creator(features, n):
+def shapefile_creator(features, n, wkid):
     """
     Create a shapefile with a list of Polygon objects, aggregate overlaping buildings and project
     :param n: (int) number of shapefiles to create
     :param features: (list) List of Polygon objects
+    :param wkid: (int) MTM zone wkid
     :return (string) path of shapefile
     """
     arcpy.env.overwriteOutput = True
     building_footprint_1 = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_1_{}.shp".format(n)
     building_footprint_2 = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_2_{}.shp".format(n)
     building_footprint_z21 = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_z21_{}.shp".format(n)  # final shapefile
-
     arcpy.CopyFeatures_management(features, building_footprint_1)
+
     #  project
     sr = arcpy.SpatialReference(3857)  # WGS_1984_Web_Mercator_Auxiliary_Sphere
     arcpy.DefineProjection_management(building_footprint_1, sr)  # Define Projection
-    sr2 = arcpy.SpatialReference(2950)  # NAD_1983_CSRS_MTM_8
+    sr2 = arcpy.SpatialReference(wkid)
     arcpy.Project_management(building_footprint_1, building_footprint_2, sr2)  # Project
     arcpy.Delete_management(building_footprint_1)
 
     #  Dissolve overlaping buildings
     arcpy.Dissolve_management(building_footprint_2, building_footprint_z21, multi_part="SINGLE_PART")
-    #RemovePolygonHoles_management(building_footprint_z21)
     #ca.AggregatePolygons(building_footprint_2, building_footprint_z21, 0.01, 3, 3, "ORTHOGONAL", "")
 
     arcpy.Delete_management(building_footprint_2)
@@ -239,7 +239,7 @@ def merc_y(lat):
 
 def RemovePolygonHoles_management(in_fc, threshold=0.0):
     """
-    The function removes holes from a polygon feature class.
+    Removes holes from a polygon feature class.
     If threshold is given, only the holes smaller than the threshold will be removed.
     If no threshold is given, it removes all holes.
     :param in_fc: is a polygon feature class.
@@ -262,14 +262,14 @@ def RemovePolygonHoles_management(in_fc, threshold=0.0):
             for part in shape:
                 new_part = arcpy.Array()
                 if threshold > 0:
-                    #find None point in shape part
-                    #in arcpy module, a None point is used to seperate exterior and interior vertices
+                    # find None point in shape part
+                    # in arcpy module, a None point is used to seperate exterior and interior vertices
                     null_point_index = []
                     for i in range(len(part)):
-                        if part[i] == None:
+                        if part[i] is None:
                             null_point_index.append(i)
-                    #if interior vertices exist, create polygons and compare polygon shape area to given threshold
-                    #if larger, keep vertices, else, dismiss them
+                    # if interior vertices exist, create polygons and compare polygon shape area to given threshold
+                    # if larger, keep vertices, else, dismiss them
                     if len(null_point_index) > 0:
                         for k in range(0, null_point_index[0]):
                             new_part.add(part[k])

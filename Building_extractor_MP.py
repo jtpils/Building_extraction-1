@@ -19,7 +19,8 @@ import ogr
 import osr
 #import arcpy.cartography as ca
 
-CONST_dlat = 0.000920  # 0.000882  # latitude difference between screenshots
+CONST_dlat = 0.000920  # latitude difference between screenshots (Sud: SJSR, Drummondville, Sherbrooke, etc)
+#CONST_dlat = 0.000880  # (nord: Chicoutimi)
 CONST_dlon = 0.001330  # 0.001280  # longitude difference between screenshots
 shapefile_list = []
 
@@ -66,11 +67,11 @@ def final_shapefile(n):
         j += 1
     print("Small polygons removed. Removing holes...                                               {}".format(elapsed_time()))
     arcpy.Delete_management(building_footprint0)
-    RemovePolygonHoles_management(building_footprint)
+    # RemovePolygonHoles_management(building_footprint)  # bugged
     print("Final shapefile complete.                                                               {}".format(elapsed_time()))
 
 
-def scan(lat, lon_s, lon_e, n, contour_buffer):
+def scan(lat, lon_s, lon_e, n, contour_buffer, wkid):
     """
     Scan a region at a given latitude and create a shapefile if building footprints were detected
     :param lat: (float) Latitude
@@ -78,6 +79,7 @@ def scan(lat, lon_s, lon_e, n, contour_buffer):
     :param lon_e: (float) ending longitude
     :param n: (int) number of the process
     :param contour_buffer: (string) path of contour buffer shapefile
+    :param wkid: (int) MTM zone wkid
     """
     print("Process {}: Taking screenshots...".format(n))
     options = Options()
@@ -117,7 +119,7 @@ def scan(lat, lon_s, lon_e, n, contour_buffer):
     lenfeat = len(feat)
     if lenfeat != 0:  # create shapefile if at least one building is detected
         print("Process {}: Creating shapefile #{}...                                                     {}".format(n, n, elapsed_time()))
-        shapefile_path = shapefile_creator(feat, n)
+        shapefile_path = shapefile_creator(feat, n, wkid)
         print("Process {}: For shapefile #{}, building footprints were extracted from {} screenshots.     {}".format(n, n, counter_screenshots, elapsed_time()))
         return shapefile_path
     else:
@@ -145,15 +147,34 @@ def start_process(lat_s, lon_s, lat_e, lon_e, shape_path):
     arcpy.Buffer_analysis(shape_path, buffer_, "200 meters")
     sr = arcpy.SpatialReference(4326)  # WGS84
     arcpy.Project_management(buffer_, buffer_p, sr)  # Project
+
+    # get MTM zone wkid
+    zone = fiona.open(shape_path)
+    polygon = zone.next()
+    zone.close()
+    shp_geom = shape(polygon['geometry'])
+    centroidX = shp_geom.centroid.x
+    wkid = 2950
+    if -69 < centroidX < -66:  # NAD_1983_CSRS_MTM_6
+        wkid = 2948
+    if -72 < centroidX < -69:  # NAD_1983_CSRS_MTM_7
+        wkid = 2949
+    if -75 < centroidX < -72:  # NAD_1983_CSRS_MTM_8
+        wkid = 2950
+    if -78 < centroidX < -75:  # NAD_1983_CSRS_MTM_9
+        wkid = 2951
+
     # create a list of the latitude for every row
     lat_list = []
     for i in range(n):
         lat_list.append(lat_s + i*CONST_dlat)
+
     # use all available cores, otherwise specify the number you want as an argument
     core_number = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(core_number)
+
     # start processes
-    results = [pool.apply_async(scan, args=(lat_list[i], lon_s, lon_e, i+1, buffer_p)) for i in range(0, n)]
+    results = [pool.apply_async(scan, args=(lat_list[i], lon_s, lon_e, i+1, buffer_p, wkid)) for i in range(0, n)]
     shapefile_list = [p.get() for p in results]  # list of shapefiles path created during all processes
     pool.close()
     pool.join()
@@ -173,14 +194,17 @@ def main(shape_path):
     layer = shapefile.GetLayer(0)
     feature = layer.GetFeature(0)
     geom = feature.GetGeometryRef()
+
     # project geometry in WGS84
     target = osr.SpatialReference()
     target.ImportFromEPSG(4326)
     source = geom.GetSpatialReference()
     transform = osr.CoordinateTransformation(source, target)
     geom.Transform(transform)
+
     # get envelope of geometry
     envelope = geom.GetEnvelope()
+
     # start processes using envelope
     num = start_process(envelope[2]-0.0007, envelope[0]-0.0007, envelope[3]+0.0007, envelope[1]+0.0007, out_shape_path)
     final_shapefile(num)
@@ -190,25 +214,31 @@ if __name__ == "__main__":
     # shapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/SJSR_bat.shp"
     # RemovePolygonHoles_management(shapefile)
 
-    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/zone_test_grand.shp"
+    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/zone_test_chicout.shp"
     main(shapefile_contour_path)
 
-    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Beloeil_munic.shp"
+    ##################### Autres
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/Drummondville_munic.shp"  # DONE OK geocode
     # main(shapefile_contour_path)
-    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Chambly_munic.shp"
+
+
+    ##################### SJSR
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Beloeil_munic.shp"  # DONE OK geocode
+    # main(shapefile_contour_path)
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Chambly_munic.shp"  # DONE OK geocode
     # main(shapefile_contour_path)
     # # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Lacolle_munic.shp"  # DONE OK geocode
     # # main(shapefile_contour_path)
     # # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Sabrevois_munic.shp"  # DONE OK geocode
     # # main(shapefile_contour_path)
-    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Sorel_munic.shp"  # DONE refaire
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Sorel_munic.shp"  # DONE OK geocode
     # main(shapefile_contour_path)
-    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/StMarc_munic.shp"  # DONE refaire
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/StMarc_munic.shp"  # DONE OK geocode
     # main(shapefile_contour_path)
-    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/SJSR_munic.shp"  # DONE refaire
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/SJSR_munic.shp"  # DONE OK geocode
     # main(shapefile_contour_path)
 
-
+    ##################### PetiteNation
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/Duhamel_munic.shp"  # DONE OK geocode
     # main(shapefile_contour_path)
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/LacSimon_munic.shp"  # DONE OK geocode

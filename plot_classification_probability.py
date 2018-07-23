@@ -26,6 +26,7 @@ from sklearn.gaussian_process.kernels import RBF
 from sklearn import datasets
 
 iris = datasets.load_iris()
+
 X = iris.data[:, 0:2]  # we only take the first two features for visualization
 y = iris.target
 
