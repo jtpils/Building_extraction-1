@@ -19,9 +19,9 @@ import ogr
 import osr
 #import arcpy.cartography as ca
 
-CONST_dlat = 0.000920  # latitude difference between screenshots (Sud: SJSR, Drummondville, Sherbrooke, etc)
+CONST_dlat = 0.000910  # latitude difference between screenshots (Sud: SJSR, Drummondville, Sherbrooke, etc)
 #CONST_dlat = 0.000880  # (nord: Chicoutimi)
-CONST_dlon = 0.001330  # 0.001280  # longitude difference between screenshots
+CONST_dlon = 0.001320  # 0.001280  # longitude difference between screenshots
 shapefile_list = []
 
 
@@ -65,7 +65,7 @@ def final_shapefile(n):
         if area < 4.0:  # smaller than
             lyr.DeleteFeature(feat.GetFID())
         j += 1
-    print("Small polygons removed. Removing holes...                                               {}".format(elapsed_time()))
+    print("Small polygons removed.                                                                 {}".format(elapsed_time()))
     arcpy.Delete_management(building_footprint0)
     # RemovePolygonHoles_management(building_footprint)  # bugged
     print("Final shapefile complete.                                                               {}".format(elapsed_time()))
@@ -214,7 +214,7 @@ if __name__ == "__main__":
     # shapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/SJSR_bat.shp"
     # RemovePolygonHoles_management(shapefile)
 
-    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/zone_test_chicout.shp"
+    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/hauteur_RDC/Quebec_2017/St_sauveur.shp"
     main(shapefile_contour_path)
 
     ##################### Autres

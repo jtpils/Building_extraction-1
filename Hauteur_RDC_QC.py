@@ -3,37 +3,39 @@ import numpy as np
 from laspy.file import File
 import laspy
 import matplotlib.pyplot as plt
-import numpy
 import scipy
+from scipy.spatial import ConvexHull
 from sklearn.cluster import DBSCAN
 from sklearn import metrics
 from sklearn.datasets.samples_generator import make_blobs
 from sklearn.preprocessing import StandardScaler
 from osgeo import ogr
-from shapely.geometry import mapping, Point, shape
+from shapely.geometry import mapping, Point, shape, Polygon
 import fiona
 from rasterstats import zonal_stats, point_query
-
 np.set_printoptions(threshold=np.nan)
 
-# inFile = classified .las
-#inFile = File("E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\SJSR_2013\LIDAR_zone_test_petit2.las", mode="r")
 
-#inLas = laspy.file.File("E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\SJSR_2013\LIDAR_6_maisons_toit.las")
-inLas = laspy.file.File("E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\SJSR_2013\LIDAR_zone_test_toit.las")
-#inLas = laspy.file.File("E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\SJSR_2013\LIDAR_zone_test_petit2_toit.las")
-
+inLas = laspy.file.File("E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\Quebec_2017\St_sauveur_bat.las")
 dataset = np.vstack([inLas.x, inLas.y, inLas.z]).transpose()
+MNT = r"E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\Quebec_2017\MNT_St_sauveur.tif"
+bat = r"E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\Quebec_2017\St_sauveur_bat.shp"
 
-#MNT = r"E:\Charles_Tousignant\Python_workspace\Gari\shapefile\inputs\Modele Numerique de Terrain\mnt_grand.tif"
-MNT = r"E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\SJSR_2013\MNT_zone_test.tif"
-bat = r"E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\SJSR_2013\batiment_google.shp"
+# exagerate Z
+for l in dataset:
+    l[2] = l[2]*10
+
 
 # Compute DBSCAN
 db = DBSCAN(eps=2, min_samples=15).fit(dataset)
 core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
 core_samples_mask[db.core_sample_indices_] = True
 labels = db.labels_
+
+# return normal Z values
+for l in dataset:
+    l[2] = l[2]/10
+
 
 # Number of clusters in labels, ignoring noise if present.
 n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
@@ -53,32 +55,48 @@ point = ogr.Geometry(ogr.wkbPoint)
 point_list = []
 z_rdc_list = []
 nb_etage_list = []
+polygone_list = []
 
 for k, col in zip(unique_labels, colors):
     if k == -1:
         # Black used for noise.
         col = [0, 0, 0, 1]
-    # print k
 
     class_member_mask = (labels == k)
     xyz = dataset[class_member_mask & core_samples_mask]
 
     plt.plot(xyz[:, 0], xyz[:, 1], 'o', markerfacecolor=tuple(col),
              markeredgecolor='k', markersize=14)
+    # xy = xyz
+    # xy.resize((len(xy),2))
+
+    xy = np.delete(xyz, 2, axis=1)
+
     # xyz = dataset[class_member_mask & ~core_samples_mask]
     # print len(xyz)
     # plt.plot(xyz[:, 0], xyz[:, 1], 'o', markerfacecolor=tuple(col),
     #          markeredgecolor='k', markersize=6)
-
-
+    # print "cluster {}: {} points".format(k, len(xyz))
     #if len(xyz) != 0:
-    if len(xyz) > 25:  # minimum number of points
-        # var2 = np.std(xyz[:, 2])
-        # print var2
+    if len(xyz) > 100:  # minimum number of points
+        #print "cluster {}: {} points".format(k, len(xyz))
+
+        hull = ConvexHull(xy)
+        for simplex in hull.simplices:
+            plt.plot(xy[simplex, 0], xy[simplex, 1], 'k-')
+
+        polyg = []
+        for pts in hull.points:
+            polyg.append(pts)
+        polygone_list.append(Polygon(polyg))
+
+
+
         nb_etage = 1
         x_centroid = sum(xyz[:, 0]) / len(xyz)
         y_centroid = sum(xyz[:, 1]) / len(xyz)
         pt = Point(x_centroid, y_centroid)
+        #print pt
         for batiment in fiona.open(bat):
             if pt.within(shape(batiment['geometry'])):
                 poly = shape(batiment['geometry'])
@@ -100,12 +118,25 @@ schema = {
     'properties': {'Z_RDC': 'float:9.2', 'nb_etage': 'int'}
 }
 
-with fiona.open('E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\SJSR_2013\hauteur_RDC.shp', 'w', 'ESRI Shapefile', schema) as c:
+with fiona.open('E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\Quebec_2017\hauteur_RDC.shp', 'w', 'ESRI Shapefile', schema) as c:
     ## If there are multiple geometries, put the "for" loop here
     for i in range(len(point_list)):
         c.write({
             'geometry': mapping(point_list[i]),
             'properties': {'Z_RDC': z_rdc_list[i], 'nb_etage': nb_etage_list[i]}
+        })
+
+schema2 = {
+    'geometry': 'Polygon',
+    'properties': {'id': 'int'}
+}
+
+with fiona.open('E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\Quebec_2017\cluster_polygons.shp', 'w', 'ESRI Shapefile', schema2) as c:
+    ## If there are multiple geometries, put the "for" loop here
+    for i in range(len(polygone_list)):
+        c.write({
+            'geometry': mapping(polygone_list[i]),
+            'properties': {'id': i}
         })
 
 
