@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+#import np as np
 import numpy as np
 from laspy.file import File
 import laspy
@@ -12,6 +13,7 @@ from sklearn.preprocessing import StandardScaler
 from osgeo import ogr
 from shapely.geometry import mapping, Point, shape, Polygon
 import fiona
+from fiona.crs import from_epsg
 from rasterstats import zonal_stats, point_query
 np.set_printoptions(threshold=np.nan)
 
@@ -23,27 +25,21 @@ bat = r"E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\Quebec
 
 # exagerate Z
 for l in dataset:
-    l[2] = l[2]*10
-
+    l[2] = l[2]*7
 
 # Compute DBSCAN
-db = DBSCAN(eps=2, min_samples=15).fit(dataset)
+db = DBSCAN(eps=1.5, min_samples=30).fit(dataset)
 core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
 core_samples_mask[db.core_sample_indices_] = True
 labels = db.labels_
 
 # return normal Z values
 for l in dataset:
-    l[2] = l[2]/10
+    l[2] = l[2]/7
 
 
 # Number of clusters in labels, ignoring noise if present.
 n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
-
-
-# #############################################################################
-# Plot result
-
 
 # Black removed and is used for noise instead.
 unique_labels = set(labels)
@@ -52,11 +48,8 @@ colors = [plt.cm.Spectral(each)
           for each in np.linspace(0, 1, len(unique_labels))]
 
 point = ogr.Geometry(ogr.wkbPoint)
-point_list = []
-z_rdc_list = []
-nb_etage_list = []
-polygone_list = []
-
+point_list, z_rdc_list, nb_etage_list, poly_hull, polygone_list, h_bat_list= [], [], [], [], [], []
+zs_min_list, zs_max_list, zs_mean_list = [], [], []
 for k, col in zip(unique_labels, colors):
     if k == -1:
         # Black used for noise.
@@ -64,49 +57,46 @@ for k, col in zip(unique_labels, colors):
 
     class_member_mask = (labels == k)
     xyz = dataset[class_member_mask & core_samples_mask]
-
     plt.plot(xyz[:, 0], xyz[:, 1], 'o', markerfacecolor=tuple(col),
              markeredgecolor='k', markersize=14)
-    # xy = xyz
-    # xy.resize((len(xy),2))
-
     xy = np.delete(xyz, 2, axis=1)
 
     # xyz = dataset[class_member_mask & ~core_samples_mask]
-    # print len(xyz)
     # plt.plot(xyz[:, 0], xyz[:, 1], 'o', markerfacecolor=tuple(col),
     #          markeredgecolor='k', markersize=6)
-    # print "cluster {}: {} points".format(k, len(xyz))
-    #if len(xyz) != 0:
+
     if len(xyz) > 100:  # minimum number of points
         #print "cluster {}: {} points".format(k, len(xyz))
 
         hull = ConvexHull(xy)
-        for simplex in hull.simplices:
-            plt.plot(xy[simplex, 0], xy[simplex, 1], 'k-')
-
-        polyg = []
-        for pts in hull.points:
-            polyg.append(pts)
-        polygone_list.append(Polygon(polyg))
-
-
+        poly_hull = []
+        for vertice in hull.vertices:
+            pt_hull = np.array([xy[vertice, 0], xy[vertice, 1]])
+            poly_hull.append(pt_hull)
+            plt.plot(xy[vertice, 0], xy[vertice, 1], 'k-')
+        polygone_list.append(Polygon(poly_hull))
 
         nb_etage = 1
         x_centroid = sum(xyz[:, 0]) / len(xyz)
         y_centroid = sum(xyz[:, 1]) / len(xyz)
         pt = Point(x_centroid, y_centroid)
-        #print pt
+
         for batiment in fiona.open(bat):
             if pt.within(shape(batiment['geometry'])):
                 poly = shape(batiment['geometry'])
                 zs = zonal_stats(poly, MNT)
                 zs_min = zs[0]['min']
+                zs_min_list.append(zs_min)
                 zs_max = zs[0]['max']
+                zs_max_list.append(zs_max)
                 zs_mean = zs[0]['mean']
+                zs_mean_list.append(zs_mean)
+                h_bat = sum(xyz[:, 2]) / len(xyz) - zs_mean
+                h_bat_list.append(h_bat)
+
                 point_list.append(pt)
-                #z_rdc = sum(xyz[:, 2]) / len(xyz)# - 2.75  # pour 1 étage
-                z_rdc = min(xyz[:, 2]) - 2.50  # pour 1 étage
+                z_rdc = sum(xyz[:, 2]) / len(xyz) - 2.75  # pour 1 étage
+                #z_rdc = min(xyz[:, 2]) - 2.50  # pour 1 étage
                 while z_rdc > zs_mean + 2.50:  # au moins 25cm au desus du sol
                     nb_etage += 1
                     z_rdc = z_rdc - 2.5
@@ -115,26 +105,28 @@ for k, col in zip(unique_labels, colors):
 
 schema = {
     'geometry': 'Point',
-    'properties': {'Z_RDC': 'float:9.2', 'nb_etage': 'int'}
+    'properties': {'MNT_min': 'float:9.2', 'MNT_max': 'float:9.2', 'MNT_mean': 'float:9.2', 'Z_RDC': 'float:9.2',
+                   'nb_etage': 'int', 'Dif_toit_sol': 'float:9.2'}
 }
 
-with fiona.open('E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\Quebec_2017\hauteur_RDC.shp', 'w', 'ESRI Shapefile', schema) as c:
-    ## If there are multiple geometries, put the "for" loop here
+with fiona.open('E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\Quebec_2017\hauteur_RDC.shp', 'w',
+                crs=from_epsg(2949), driver='ESRI Shapefile', schema=schema) as output:
     for i in range(len(point_list)):
-        c.write({
+        output.write({
             'geometry': mapping(point_list[i]),
-            'properties': {'Z_RDC': z_rdc_list[i], 'nb_etage': nb_etage_list[i]}
+            'properties': {'MNT_min': zs_min_list[i], 'MNT_max': zs_max_list[i], 'MNT_mean': zs_mean_list[i],
+                           'Z_RDC': z_rdc_list[i], 'nb_etage': nb_etage_list[i], 'Dif_toit_sol': h_bat_list[i]}
         })
 
-schema2 = {
+schema = {
     'geometry': 'Polygon',
     'properties': {'id': 'int'}
 }
 
-with fiona.open('E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\Quebec_2017\cluster_polygons.shp', 'w', 'ESRI Shapefile', schema2) as c:
-    ## If there are multiple geometries, put the "for" loop here
+with fiona.open('E:\Charles_Tousignant\Python_workspace\Gari\shapefile\hauteur_RDC\Quebec_2017\cluster_polygons.shp',
+                'w', crs=from_epsg(2949), driver='ESRI Shapefile', schema=schema) as output:
     for i in range(len(polygone_list)):
-        c.write({
+        output.write({
             'geometry': mapping(polygone_list[i]),
             'properties': {'id': i}
         })

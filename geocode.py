@@ -22,10 +22,11 @@ def latlon2address(lat, lon):
     :param lon: (float) longitude
     :return n: (tuple) address of coordinate (address, street, city, state, postal, country)
     """
-    b = geocoder.bing([lat, lon], method="reverse", key="AjVyhHv7lq__hT5_XLZ8jU0WbQpUIEUhQ7_nlHDw9NlcID9jRJDYLSSkIQmuQJ82")  # quota de 125 000 requêtes/année
+    key = "AjBnbJXTfnqbk1fgDACBIfrnhHs6SMQGGi6XGzaqCw2lyQ_RjtnCSQaCGrFlXS_L"  # quota de 125 000 requêtes/année
+    b = geocoder.bing([lat, lon], method="reverse", key=key)
     timeout = time.time() + 10
     while b.city is None:
-        b = geocoder.bing([lat, lon], method="reverse", key="AjVyhHv7lq__hT5_XLZ8jU0WbQpUIEUhQ7_nlHDw9NlcID9jRJDYLSSkIQmuQJ82")
+        b = geocoder.bing([lat, lon], method="reverse", key=key)
         if b.city is None and time.time() > timeout:  # if google can't find the address after a certain amount of time
             return "no info", "0", "no info", "no info", "no info", "no info", "no info"
             # sys.exit("Bing ne trouve pas d'adresse, veuillez réessayer")
@@ -111,8 +112,8 @@ def main():
     Main function.
     Change the path of inShapefile and outShapefile for the desired building shapefile to geocode.
     """
-    inShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/Drummondville_bat.shp"
-    outShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/Drummondville_bat_geocode.shp"
+    inShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/Sherbrooke_bat.shp"
+    outShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/StHyacinthe_bat_geocode.shp"
     geocode_shapefile(inShapefile, outShapefile)
 
 
