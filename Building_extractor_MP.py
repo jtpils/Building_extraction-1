@@ -211,8 +211,8 @@ def main(shape_path):
 
 
 if __name__ == "__main__":
-    shapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/Sherbrooke_bat.shp"
-    RemovePolygonHoles_management(shapefile)
+    shapefile_bat = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/StHyacinthe_bat.shp"
+    RemovePolygonHoles_management(shapefile_bat)
 
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/hauteur_RDC/Quebec_2017/St_sauveur.shp"
     # main(shapefile_contour_path)
@@ -223,6 +223,8 @@ if __name__ == "__main__":
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/StHyacinthe_munic.shp"  # DONE OK geocode
     # main(shapefile_contour_path)
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/Sherbrooke_munic.shp"  # DONE OK geocode
+    # main(shapefile_contour_path)
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/Quebec_riv_St_Charles.shp"  # DONE
     # main(shapefile_contour_path)
 
     ##################### SJSR

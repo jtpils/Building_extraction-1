@@ -112,7 +112,7 @@ def main():
     Main function.
     Change the path of inShapefile and outShapefile for the desired building shapefile to geocode.
     """
-    inShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/Sherbrooke_bat.shp"
+    inShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/StHyacinthe_bat.shp"
     outShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/StHyacinthe_bat_geocode.shp"
     geocode_shapefile(inShapefile, outShapefile)
 
