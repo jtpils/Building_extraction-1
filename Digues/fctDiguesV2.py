@@ -12,7 +12,7 @@
 # -------------------------------------------------------------------------------
 import arcpy
 import math
-from Utils_MP import elapsed_time
+from utils import elapsed_time
 import Building_locator
 
 
