@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # ---------------------------------------------------------------------------
-# Utils_MP.py
+# utils.py
 # Created on: 2018-05-25
 # Author : Charles Tousignant
 # Project : GARI
@@ -9,7 +9,6 @@
 import numpy as np
 import cv2 as cv
 import arcpy
-#import arcpy.cartography as ca
 import math
 import time
 import datetime

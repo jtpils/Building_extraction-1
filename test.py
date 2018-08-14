@@ -8,9 +8,11 @@
 # # print(type(sess))
 # print(sess.run(hello))
 
-import pandas as pd
-df = pd.read_csv("salaries.csv")
-print df
+import numpy as np
+
+a = np.zeros([2, 3])
+a = np.reshape(a,[-1, 6])
+print(a)
 
 # a = tf.constant([[1, 2],
 #                  [3, 4]])

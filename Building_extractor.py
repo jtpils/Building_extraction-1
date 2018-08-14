@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # ---------------------------------------------------------------------------
-# Building_extractor_MP.py
+# Building_extractor.py
 # Created on: 2018-05-22
 # Author : Charles Tousignant
 # Project : GARI
@@ -10,7 +10,7 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import multiprocessing
-from Utils_MP import *
+from utils import *
 import fiona
 from shapely.geometry import Point, shape
 from PIL import Image
@@ -19,8 +19,8 @@ import ogr
 import osr
 #import arcpy.cartography as ca
 
-CONST_dlat = 0.000910  # latitude difference between screenshots (Sud: SJSR, Drummondville, Sherbrooke, etc)
-#CONST_dlat = 0.000880  # (nord: Chicoutimi)
+#CONST_dlat = 0.000910  # latitude difference between screenshots (Sud: SJSR, Drummondville, Sherbrooke, etc)
+CONST_dlat = 0.000860  # (nord: Chicoutimi)
 CONST_dlon = 0.001320  # 0.001280  # longitude difference between screenshots
 shapefile_list = []
 
@@ -67,7 +67,7 @@ def final_shapefile(n):
         j += 1
     print("Small polygons removed.                                                                 {}".format(elapsed_time()))
     arcpy.Delete_management(building_footprint0)
-    # RemovePolygonHoles_management(building_footprint)  # bugged
+    # RemovePolygonHoles_management(building_footprint)  # bugged (faire après en 2e temps)
     print("Final shapefile complete.                                                               {}".format(elapsed_time()))
 
 
@@ -211,11 +211,13 @@ def main(shape_path):
 
 
 if __name__ == "__main__":
-    shapefile_bat = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/StHyacinthe_bat.shp"
-    RemovePolygonHoles_management(shapefile_bat)
+    # shapefile_bat = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/StHyacinthe_bat.shp"
+    # RemovePolygonHoles_management(shapefile_bat)
 
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/hauteur_RDC/Quebec_2017/St_sauveur.shp"
     # main(shapefile_contour_path)
+    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/zone_test_chicout.shp"
+    main(shapefile_contour_path)
 
     ##################### Autres
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/Drummondville_munic.shp"  # DONE OK geocode
@@ -226,6 +228,9 @@ if __name__ == "__main__":
     # main(shapefile_contour_path)
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/Quebec_riv_St_Charles.shp"  # DONE
     # main(shapefile_contour_path)
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/Saguenay_munic.shp"  # refaire (ligne verticale)
+    # main(shapefile_contour_path)
+
 
     ##################### SJSR
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/SJSR/Beloeil_munic.shp"  # DONE OK geocode

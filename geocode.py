@@ -7,12 +7,11 @@
 # Description : Géocode automatique des addresses de tout les bâtiments d'un
 # shapefile. Entre les adresses dans différents champs de la table attributaire
 # ---------------------------------------------------------------------------
-import sys
 import geocoder
 import ogr
 import osr
 import re
-from Utils_MP import *
+from utils import *
 
 
 def latlon2address(lat, lon):
@@ -112,8 +111,8 @@ def main():
     Main function.
     Change the path of inShapefile and outShapefile for the desired building shapefile to geocode.
     """
-    inShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/StHyacinthe_bat.shp"
-    outShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/StHyacinthe_bat_geocode.shp"
+    inShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/Duhamel_bat_geocode_a.shp"
+    outShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/Duhamel_bat_geocode_ar.shp"
     geocode_shapefile(inShapefile, outShapefile)
 
 
