@@ -6,8 +6,8 @@
 # Project : GARI
 # Description : Récupérer automatiquement les débits d’une station hydrométrique (scheduled task every hours at :48)
 # ---------------------------------------------------------------------------
-import lxml.html as PARSER
 import urllib
+import lxml.html as PARSER
 
 
 def suivi_hydro(url):

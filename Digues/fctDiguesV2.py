@@ -10,10 +10,10 @@
 # Copyright:   (c) poulinji 2018
 # Licence:     <your licence>
 # -------------------------------------------------------------------------------
-import arcpy
 import math
-from utils import elapsed_time
+import arcpy
 import Building_locator
+from utils import elapsed_time
 
 
 def volumeTrapeze(h, sommet, base, profondeur):

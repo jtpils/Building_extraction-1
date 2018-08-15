@@ -9,8 +9,8 @@ import sys
 import arcpy
 import arcpy.sa
 import numpy
-import scipy
 import pandas
+import scipy
 from openpyxl import load_workbook
 
 
