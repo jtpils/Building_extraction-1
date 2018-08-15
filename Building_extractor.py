@@ -4,26 +4,24 @@
 # Created on: 2018-05-22
 # Author : Charles Tousignant
 # Project : GARI
-# Description : Extraction des empreintes de bâtiments automatisée sur
-# Google Maps (version Multiprocess)
+# Description : Extraction of building footprints from Google Maps
 # ---------------------------------------------------------------------------
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 import multiprocessing
-from utils import *
-import fiona
-from shapely.geometry import Point, shape
-from PIL import Image
 from io import BytesIO
+import fiona
 import ogr
 import osr
+from PIL import Image
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from shapely.geometry import Point, shape
+from utils import *
 #import arcpy.cartography as ca
 
 #CONST_dlat = 0.000910  # latitude difference between screenshots (Sud: SJSR, Drummondville, Sherbrooke, etc)
 CONST_dlat = 0.000860  # (nord: Chicoutimi)
 CONST_dlon = 0.001320  # 0.001280  # longitude difference between screenshots
 shapefile_list = []
-
 
 
 def final_shapefile(n):
@@ -217,8 +215,8 @@ if __name__ == "__main__":
 
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/hauteur_RDC/Quebec_2017/St_sauveur.shp"
     # main(shapefile_contour_path)
-    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/zone_test_chicout.shp"
-    main(shapefile_contour_path)
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/zone_test_chicout.shp"
+    # main(shapefile_contour_path)
 
     ##################### Autres
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/Drummondville_munic.shp"  # DONE OK geocode
@@ -229,8 +227,8 @@ if __name__ == "__main__":
     # main(shapefile_contour_path)
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/Quebec_riv_St_Charles.shp"  # DONE
     # main(shapefile_contour_path)
-    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/Saguenay_munic.shp"  # refaire (ligne verticale)
-    # main(shapefile_contour_path)
+    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/Saguenay_munic.shp"  # refaire (ligne verticale)
+    main(shapefile_contour_path)
 
 
     ##################### SJSR

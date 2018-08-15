@@ -4,13 +4,13 @@
 # Created on: 2018-05-26
 # Author : Charles Tousignant
 # Project : GARI
-# Description : Extraction de l'emprunte d'un bâtiment selon son addresse
+# Description : Extraction building footprint according to the address
 # ---------------------------------------------------------------------------
 import sys
 import geocoder
 from selenium import webdriver
-from utils import *
 from selenium.webdriver.chrome.options import Options
+from utils import *
 
 
 def address2latlon(addr):

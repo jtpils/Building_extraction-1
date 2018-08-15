@@ -4,16 +4,15 @@
 # Created on: 2018-05-25
 # Author : Charles Tousignant
 # Project : GARI
-# Description : Fonctions utilitaires
+# Description : Utility functions
 # ---------------------------------------------------------------------------
-import numpy as np
-import cv2 as cv
-import arcpy
-import math
-import time
 import datetime
+import math
 import os
-
+import time
+import arcpy
+import cv2 as cv
+import numpy as np
 
 start_time = time.time()  # start timer
 
@@ -24,6 +23,11 @@ def elapsed_time():
 
 
 def new_shp_name(file_path):
+    """
+    Create a new shapefile name if it already exist
+    :param file_path: (string) Path to verify
+    :return file_path: (string) New path
+    """
     while os.path.exists(file_path):
         try:
             int(file_path[-5])

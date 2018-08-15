@@ -4,13 +4,13 @@
 # Created on: 2018-05-25
 # Author : Charles Tousignant
 # Project : GARI
-# Description : Géocode automatique des addresses de tout les bâtiments d'un
-# shapefile. Entre les adresses dans différents champs de la table attributaire
+# Description : Reverse geocoding of buildings in the shapefile.
+# Create and fill new fields related to the address in the attribute table.
 # ---------------------------------------------------------------------------
+import re
 import geocoder
 import ogr
 import osr
-import re
 from utils import *
 
 
@@ -109,10 +109,11 @@ def geocode_shapefile(in_shapefile, out_shapefile):
 def main():
     """
     Main function.
-    Change the path of inShapefile and outShapefile for the desired building shapefile to geocode.
+    Change the path of inShapefile and outShapefile for the desired building shapefile to reverse geocode and
+    the output shapefile location/name.
     """
-    inShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/Duhamel_bat_geocode_a.shp"
-    outShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/Duhamel_bat_geocode_ar.shp"
+    inShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/LacSimon_bat_geocode.shp"
+    outShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/LacSimon_bat_geocode_ar.shp"
     geocode_shapefile(inShapefile, outShapefile)
 
 
