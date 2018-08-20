@@ -19,7 +19,7 @@ from utils import *
 #import arcpy.cartography as ca
 
 #CONST_dlat = 0.000910  # latitude difference between screenshots (Sud: SJSR, Drummondville, Sherbrooke, etc)
-CONST_dlat = 0.000860  # (nord: Chicoutimi)
+CONST_dlat = 0.000840  # (nord: Chicoutimi)
 CONST_dlon = 0.001320  # 0.001280  # longitude difference between screenshots
 shapefile_list = []
 

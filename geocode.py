@@ -112,8 +112,8 @@ def main():
     Change the path of inShapefile and outShapefile for the desired building shapefile to reverse geocode and
     the output shapefile location/name.
     """
-    inShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/LacSimon_bat_geocode.shp"
-    outShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/LacSimon_bat_geocode_ar.shp"
+    inShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/Papineauville_bat_geocode.shp"
+    outShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/Papineauville_bat_geocode_ar.shp"
     geocode_shapefile(inShapefile, outShapefile)
 
 
