@@ -8,7 +8,7 @@ requirements:
 * geocoder
 * GDAL
 * shapely
-* selenium
+* selenium (and have cromedriver.exe at the correct path. See line 91 of Building_extractor.py)
 
 ## Building_extractor.py
 Extraction of building footprints from Google Maps to the shapefile format (.shp). 
