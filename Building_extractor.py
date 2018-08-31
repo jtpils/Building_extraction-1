@@ -213,8 +213,31 @@ if __name__ == "__main__":
     # shapefile_bat = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/StHyacinthe_bat.shp"
     # RemovePolygonHoles_management(shapefile_bat)
 
-    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/hauteur_RDC/Quebec_2017/St_sauveur.shp"
-    # main(shapefile_contour_path)
+    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/hauteur_RDC/Quebec_2017/St_sauveur.shp"
+    main(shapefile_contour_path)
+
+    # img= cv.imread(r"C:\Users\bruntoca\Desktop\Capture1.PNG")
+    # im = building_image(r"C:\Users\bruntoca\Desktop\Capture1.PNG")
+    # print type(img)
+    # print type(im)
+    # tracer_contour(im, img)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/zone_test_chicout.shp"
     # main(shapefile_contour_path)
 
@@ -227,8 +250,8 @@ if __name__ == "__main__":
     # main(shapefile_contour_path)
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/Quebec_riv_St_Charles.shp"  # DONE
     # main(shapefile_contour_path)
-    shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/Saguenay_munic.shp"  # refaire (ligne verticale)
-    main(shapefile_contour_path)
+    # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/Saguenay_munic.shp"  # refaire (ligne verticale)
+    # main(shapefile_contour_path)
 
 
     ##################### SJSR

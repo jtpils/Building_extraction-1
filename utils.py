@@ -166,25 +166,23 @@ def inv_y(coord, img):
     :return coord: (list) List of Polygon points coordinates
     """
     height, width = img.shape[:2]  # take height of image
-    yc = np.int(height) / 2
+    yc = np.int(height)
     for i in range(len(coord)):
         for j in range(len(coord[i])):
-            coord[i][j][1] = 2 * yc - coord[i][j][1]  # invert Y coordinates of image
+            coord[i][j][1] = yc - coord[i][j][1]  # invert Y coordinates of image
     return coord
 
 
 def scale(coord):
     """
-    Scale the Polygons coordinates.  Adjust X and Y scale depending on the zoom of the images.
+    Scale the Polygons coordinates.  Adjust scale depending on the zoom of the images.
     :param coord: (list) List of Polygon points coordinates
     :return coord: (list) List of Polygon points scaled coordinates
     """
-    y_scale = 0.07465  # Y scale (for 21zoom use 0.07465)
-    x_scale = 0.07465  # X scale (for 21zoom use 0.07465)
+    scl = 0.07465  # scale (for 21zoom use 0.07465)
     for i in range(len(coord)):
         for j in range(len(coord[i])):
-            coord[i][j][1] = coord[i][j][1] * y_scale
-            coord[i][j][0] = coord[i][j][0] * x_scale
+            coord[i][j][0], coord[i][j][1] = coord[i][j][0] * scl, coord[i][j][1] * scl
     return coord
 
 
@@ -200,8 +198,7 @@ def translation(coord, lat, lon):
     tx = merc_x(lon) - 57.55  # X translation
     for i in range(len(coord)):
         for j in range(len(coord[i])):
-            coord[i][j][1] = coord[i][j][1] + ty
-            coord[i][j][0] = coord[i][j][0] + tx
+            coord[i][j][0], coord[i][j][1] = coord[i][j][0] + tx, coord[i][j][1] + ty
     return coord
 
 
