@@ -40,7 +40,7 @@ def localize_point(lat, lon):
     return arcpy.PointGeometry(arcpy.Point(merc_x(lon), merc_y(lat)))
 
 
-def main(adr):
+def building_locator(adr):
     """
     Main function. Create a shapefile of the building footprint for the address entered by the user.
     """
@@ -65,8 +65,7 @@ def main(adr):
     driver.save_screenshot(screenshot_path)
 
     print("Detecting and extracting building footprints from screenshot...")
-    image_google = cv.imread(screenshot_path)
-    image_bat = building_image(image_google)
+    image_bat = building_image(screenshot_path)
     image2features(image_bat, feat, lat, lon)
     driver.quit()
     point = localize_point(lat, lon)
@@ -85,16 +84,26 @@ def main(adr):
     arcpy.CopyFeatures_management(feat[index], localized_building)
     sr = arcpy.SpatialReference(3857)  # WGS_1984_Web_Mercator_Auxiliary_Sphere
     arcpy.DefineProjection_management(localized_building, sr)  # Define Projection
-    sr2 = arcpy.SpatialReference(2950)  # NAD_1983_CSRS_MTM_8
+    wkid = 2950
+    if -69 < lon < -66:  # NAD_1983_CSRS_MTM_6
+        wkid = 2948
+    if -72 < lon < -69:  # NAD_1983_CSRS_MTM_7
+        wkid = 2949
+    if -75 < lon < -72:  # NAD_1983_CSRS_MTM_8
+        wkid = 2950
+    if -78 < lon < -75:  # NAD_1983_CSRS_MTM_9
+        wkid = 2951
+    sr2 = arcpy.SpatialReference(wkid)
     arcpy.Project_management(localized_building, localized_building_proj, sr2)  # Project
     arcpy.Delete_management(localized_building)
     print("Building footprint extraction complete!")
+    return screenshot_path, localized_building_proj
 
 
 if __name__ == "__main__":
     address = raw_input(
         "Entrez l'adresse du bâtiment à extraire (par exemple: 165 rue de Liège, St-jean-sur-Richelieu, Québec)")
-    main(address)
+    building_locator(address)
     # a = '165 rue de Liege, St-jean-sur-Richelieu, Quebec'  # point pas dans le polygone
     # b = "116 rue de Liege, St-jean-sur-Richelieu, Quebec"  # point dans le polygone
     # c = "107 rue de Liege, St-jean-sur-Richelieu, Quebec"  # point pas dans le polygone

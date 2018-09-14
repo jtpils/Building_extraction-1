@@ -148,19 +148,21 @@ def start_process(lat_s, lon_s, lat_e, lon_e, shape_path):
     arcpy.Project_management(buffer_, buffer_p, sr)  # Project
 
     # get MTM zone wkid
-    zone = fiona.open(shape_path)
-    polygon = zone.next()
-    zone.close()
-    shp_geom = shape(polygon['geometry'])
-    centroidX = shp_geom.centroid.x
+    # zone = fiona.open(shape_path)
+    # polygon = zone.next()
+    # zone.close()
+    # shp_geom = shape(polygon['geometry'])
+    # centroidX = shp_geom.centroid.x
+
+    lon_moy = (lon_s + lon_e) / 2
     wkid = 2950
-    if -69 < centroidX < -66:  # NAD_1983_CSRS_MTM_6
+    if -69 < lon_moy < -66:  # NAD_1983_CSRS_MTM_6
         wkid = 2948
-    if -72 < centroidX < -69:  # NAD_1983_CSRS_MTM_7
+    if -72 < lon_moy < -69:  # NAD_1983_CSRS_MTM_7
         wkid = 2949
-    if -75 < centroidX < -72:  # NAD_1983_CSRS_MTM_8
+    if -75 < lon_moy < -72:  # NAD_1983_CSRS_MTM_8
         wkid = 2950
-    if -78 < centroidX < -75:  # NAD_1983_CSRS_MTM_9
+    if -78 < lon_moy < -75:  # NAD_1983_CSRS_MTM_9
         wkid = 2951
 
     # create a list of the latitude for every row
@@ -182,7 +184,7 @@ def start_process(lat_s, lon_s, lat_e, lon_e, shape_path):
     return n
 
 
-def main(shape_path):
+def building_extractor(shape_path):
     """
     Main function. Scan the shapefile envelope and creates a shapefile containing all the detected building footprints
     :param shape_path: (string) path of contour shapefile
@@ -214,28 +216,13 @@ if __name__ == "__main__":
     # RemovePolygonHoles_management(shapefile_bat)
 
     shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/hauteur_RDC/Quebec_2017/St_sauveur.shp"
-    main(shapefile_contour_path)
+    building_extractor(shapefile_contour_path)
 
     # img= cv.imread(r"C:\Users\bruntoca\Desktop\Capture1.PNG")
     # im = building_image(r"C:\Users\bruntoca\Desktop\Capture1.PNG")
     # print type(img)
     # print type(im)
     # tracer_contour(im, img)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     # shapefile_contour_path = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/zone_risque/zone_test_chicout.shp"

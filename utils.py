@@ -13,6 +13,7 @@ import time
 import arcpy
 import cv2 as cv
 import numpy as np
+from shapely.geometry import Polygon, Point
 
 start_time = time.time()  # start timer
 
@@ -80,15 +81,43 @@ def tracer_contour(img_bat, img_google):
     # for c in contours:
     #     epsilon = 0.01 * cv.arcLength(c, True)
     #     approx.append(cv.approxPolyDP(c, epsilon, True))
-    # Tracer les contours
-    cv.drawContours(img_google, contours, -1, (0, 255, 0), 3)
-    # Tracer individuellement
-    # cnt = contours[245]
-    # cv.drawContours(img_originale, [cnt], 0, (0, 255, 0), 3)
 
-    cv.imshow('Image Google', img_google)
-    cv.waitKey(0)
-    cv.destroyAllWindows()
+    # Tracer les contours
+    #cv.drawContours(img_google, contours, -1, (0, 255, 0), 3)
+    # Tracer individuellement
+
+
+    dist = []
+    pt = Point(1000, 1000)
+    for _ in contours:
+        dist.append(pt.distance(Point(_[0][0][:])))
+        print(_)
+        print("--------------")
+        print(_[0][:][0])
+        print("--------------")
+        print(Point(_[0][0][:]))
+        print("--------------")
+        print(_[0][0][0])
+        print("--------------")
+        print(type(_))
+        # print(_)
+        # print(type(_))
+    #     dist.append(pt.distance(Polygon(_)))
+    print(dist)
+    # print(type(dist))
+    # print(type(dist[0]))
+
+    index = dist.index(min(liste_d))
+    cnt = contours[0]
+
+    cv.drawContours(img_google, [cnt], 0, (0, 255, 0), 3)
+
+    screenshot_path_contour = "E:/Charles_Tousignant/Python_workspace/Gari/screenshots/localize_building_contour.png"
+    cv.imwrite(screenshot_path_contour, img_google)
+
+    # cv.imshow('Image Google', img_google)
+    # cv.waitKey(0)
+    # cv.destroyAllWindows()
 
 
 def image2features(img_bat, features, lat, lon):
