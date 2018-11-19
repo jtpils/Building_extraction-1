@@ -266,6 +266,25 @@ def merc_y(lat):
     return y
 
 
+def convertCoord(lon, lat, inEPSG, outEPSG):
+    """
+    Convert coordinates from one coordinate system to another.
+    Must use unit from the input coordinate system.
+    :param lon: (float) Longitude (unit depends on inEPSG).
+    :param lat: (float) Latitude (unit depends on inEPSG).
+    :param inEPSG: (integer) EPSG code of input coordinate system.
+    :param outEPSG: (integer) EPSG code of output coordinate system.
+    """
+    from pyproj import Proj, transform
+    inProj = Proj(init='epsg:'+str(inEPSG))
+    outProj = Proj(init='epsg:'+str(outEPSG))
+    x, y = transform(inProj, outProj, lon, lat)
+    return x, y
+    # epsg:4326  WGS84
+    # epsg:2950  MTM8
+    # epsg:6622  Quebec Lambert
+
+
 def RemovePolygonHoles_management(in_fc, threshold=0.0):
     """
     Removes holes from a polygon feature class.

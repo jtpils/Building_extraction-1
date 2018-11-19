@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 # ---------------------------------------------------------------------------
-# Station_hydro.py
-# Created on: 2018-06-14
+# Station_hydro_EC.py
+# Created on: 2018-11-19
 # Author : Charles Tousignant
 # Project : GARI
-# Description : Récupérer automatiquement les débits d’une station hydrométrique (scheduled task every hours at :48)
+# Description : Récupérer automatiquement les débits d’une station hydrométrique de Environnement Canada
 # ---------------------------------------------------------------------------
 
 
@@ -19,6 +19,7 @@ def suivi_hydro(url):
     ctx.verify_mode = ssl.CERT_NONE
 
     data = urllib.urlopen(url, context=ctx).read()
+    #print data
     root = parser.fromstring(data)
     suivi_list = []
     i = 0
@@ -33,11 +34,13 @@ def suivi_hydro(url):
         i += 1
     suivi_list[2] = float(suivi_list[2].replace(",", "."))
     suivi_list[3] = float(suivi_list[3].replace(",", "."))
+    print i
     return suivi_list
 
 
 def main():
     url = "https://www.cehq.gouv.qc.ca/suivihydro/tableau.asp?NoStation=030302&Zone=&Secteur=nulle"
+    #url = "https://eau.ec.gc.ca/report/real_time_f.html?stn=02OJ016&type=realTime&mode=Table"
     suivi_list = suivi_hydro(url)
     print(suivi_list[0])
     print(suivi_list[1])
