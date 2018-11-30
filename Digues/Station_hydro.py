@@ -13,13 +13,23 @@ def suivi_hydro(url):
     import urllib
     import lxml.html as parser
     import ssl
+    #import pandas as pd
 
     ctx = ssl.create_default_context()
     ctx.check_hostname = False
     ctx.verify_mode = ssl.CERT_NONE
+    html = urllib.urlopen(url, context=ctx).read()
 
-    data = urllib.urlopen(url, context=ctx).read()
-    root = parser.fromstring(data)
+    # tables = pd.read_html(html)
+    # date = unicodedata.normalize('NFKD', unicode(tables[2][0][1])).encode('ascii', 'ignore')
+    # heure = unicodedata.normalize('NFKD', unicode(tables[2][1][1])).encode('ascii', 'ignore')
+    # niveau = unicodedata.normalize('NFKD', unicode(tables[2][2][1])).encode('ascii', 'ignore')
+    # niveau = float(niveau.replace("*", "").replace(",", "."))
+    # debit = unicodedata.normalize('NFKD', unicode(tables[2][3][1])).encode('ascii', 'ignore')
+    # debit = float(debit.replace("*", "").replace(",", "."))
+
+    ##########Autre méthode (sans pandas)############
+    root = parser.fromstring(html)
     suivi_list = []
     i = 0
     for ele_table in root.getiterator(tag="table"):
@@ -31,18 +41,21 @@ def suivi_hydro(url):
                     suivi_list.append(info)
                 j += 1
         i += 1
-    suivi_list[2] = float(suivi_list[2].replace(",", "."))
-    suivi_list[3] = float(suivi_list[3].replace(",", "."))
-    return suivi_list
+    date = suivi_list[0]
+    heure = suivi_list[1]
+    niveau = float(suivi_list[2].replace("*", "").replace(",", "."))
+    debit = float(suivi_list[3].replace("*", "").replace(",", "."))
+    ##################################
+    return date, heure, niveau, debit
 
 
 def main():
     url = "https://www.cehq.gouv.qc.ca/suivihydro/tableau.asp?NoStation=030302&Zone=&Secteur=nulle"
-    suivi_list = suivi_hydro(url)
-    print(suivi_list[0])
-    print(suivi_list[1])
-    print(suivi_list[2])
-    print(suivi_list[3])
+    date, heure, niveau, debit = suivi_hydro(url)
+    print("date : {}".format(date))
+    print("heure : {}".format(heure))
+    print("niveau : {}".format(niveau))
+    print("debit : {}".format(debit))
 
 
 if __name__ == "__main__":

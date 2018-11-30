@@ -35,7 +35,7 @@ def digue(in_lines, in_raster):
     angle = 45  # angle des cotes
     freeboard = 0.61  # area of the dike between the highest floodwater level and the top of the dike (2')
     compaction = 1.05  # 5% of the required height of the dike to account for compaction due to wetting
-    volumeSac = 0.02  # 32kg de sable  (20 litres)
+    volumeSac = 0.01  # 18kg de sable  (10L de sable dans un sac de 20L)
     arcpy.env.workspace = arcpy.Describe(in_lines).path
     arcpy.env.overwriteOutput = True
 

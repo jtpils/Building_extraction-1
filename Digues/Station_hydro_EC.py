@@ -8,45 +8,35 @@
 # ---------------------------------------------------------------------------
 
 
-def suivi_hydro(url):
-    import unicodedata
-    import urllib
-    import lxml.html as parser
-    import ssl
-
-    ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
-
-    data = urllib.urlopen(url, context=ctx).read()
-    #print data
-    root = parser.fromstring(data)
-    suivi_list = []
-    i = 0
-    for ele_table in root.getiterator(tag="table"):
-        if i == 3:
-            j = 0
-            for ele_td in ele_table.getiterator(tag="td"):
-                if 3 < j < 8:
-                    info = unicodedata.normalize('NFKD', unicode(ele_td.text_content())).encode('ascii', 'ignore')
-                    suivi_list.append(info)
-                j += 1
-        i += 1
-    suivi_list[2] = float(suivi_list[2].replace(",", "."))
-    suivi_list[3] = float(suivi_list[3].replace(",", "."))
-    print i
-    return suivi_list
+def suivi_hydro_EC(province, station):
+    """
+    Return date and water level of last mesure at a given station
+    :param province: (string) Province abreviation. Ex.: Enter "QC" for Quebec.
+    :param station: (string) Station code. Ex.: Enter "020J016" for Marina SJSR.
+    :return date: (string) Date/time of last measure taken at station.
+    :return niveau: (float) Water level of last measure.
+    """
+    import urllib2
+    import pandas as pd
+    url = "http://dd.weather.gc.ca/hydrometric/csv/{0}/hourly/{0}_{1}_hourly_hydrometric.csv".format(province, station)
+    response = urllib2.urlopen(url)
+    df = pd.read_csv(response)
+    nb_row = len(df)
+    date = df.loc[nb_row-1, "Date"]
+    niveau = float(df.loc[nb_row-1, "Water Level / Niveau d'eau (m)"])
+    return date, niveau
 
 
 def main():
-    url = "https://www.cehq.gouv.qc.ca/suivihydro/tableau.asp?NoStation=030302&Zone=&Secteur=nulle"
     #url = "https://eau.ec.gc.ca/report/real_time_f.html?stn=02OJ016&type=realTime&mode=Table"
-    suivi_list = suivi_hydro(url)
-    print(suivi_list[0])
-    print(suivi_list[1])
-    print(suivi_list[2])
-    print(suivi_list[3])
+    province = "QC"
+    station = "02OJ007"
+    date, niveau = suivi_hydro_EC(province, station)
+    print date
+    print niveau
 
 
 if __name__ == "__main__":
     main()
+
+
