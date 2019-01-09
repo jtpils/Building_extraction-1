@@ -23,7 +23,7 @@ CONST_dlat = 0.000840  # (nord: Chicoutimi)
 CONST_dlon = 0.001320  # 0.001280  # longitude difference between screenshots
 shapefile_list = []
 
-
+test
 def final_shapefile(n):
     """
     Create the final shapefile by merging and aggregating all the shapefiles previously created with shapefile_creator()
