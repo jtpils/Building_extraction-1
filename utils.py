@@ -13,7 +13,8 @@ import time
 import arcpy
 import cv2 as cv
 import numpy as np
-from shapely.geometry import Polygon, Point
+import shutil
+#from shapely.geometry import Point
 
 start_time = time.time()  # start timer
 
@@ -38,6 +39,83 @@ def new_shp_name(file_path):
             number = str(int(file_path[-5]) + 1)
             file_path = file_path[0:-5] + number + ".shp"
     return file_path
+
+
+def clean_scratch_dir():
+    # tempdir = os.path.join(os.environ["TEMP"], "ScratchGARI.gdb")
+    tempdir = os.path.join(os.environ["TEMP"], "scratch.gdb")
+    if os.path.exists(tempdir):
+        shutil.rmtree(tempdir)
+
+
+def set_temp_folder():
+    """
+    Permet de configurer le répertoire temporaire dans %USER%\AppData\GARI\Temp
+
+    :return:
+    """
+
+    tempFolder = os.path.join(os.getenv("APPDATA"), "GARI\Temp")
+
+    if not os.path.exists(tempFolder):
+        os.makedirs(tempFolder)
+
+    arcpy.env.scratchWorkspace = tempFolder
+
+
+def delete_temp_folder():
+    """
+    Permet de supprimer le contenu de %USER%\AppData\GARI\Temp
+
+    :return:
+    """
+
+    tempFolder = os.path.join(os.getenv("APPDATA"), "GARI\Temp")
+
+    if os.path.exists(tempFolder):
+        for file in os.listdir(tempFolder):
+            arcpy.Delete_management(os.path.join(tempFolder, file))
+
+
+def create_ScratchGDB_name(in_name):
+    """
+    Crée un nom dans le scratch GDB configuré au préalable.
+    :param in_name:
+    :return:
+    """
+
+    return r"{0}\{1}".format(arcpy.env.scratchGDB, in_name)
+
+
+def create_unique_name(in_filename, in_path, in_return_full_path=True):
+    """
+    Crée un nom unique dans un dossier ordinaire. Si le nom en entrée est déjà utilisé, on ajoute _0.
+    Le nombre en suffixe est incrémenté dépendamment du nombre de copies déjà présentes.
+
+    :param in_filename: Le nom du fichier avec son extension.
+    :param in_path: Le nom du dossier contenant le fichier.
+    :param in_return_full_path: Détermine si le retour est le chemin absolu ou simplement le nom du fichier.
+    :return: Le nom du fichier, seul ou en chemin complet.
+    """
+    index = 1
+
+    currentFilename = in_filename
+
+    while os.path.exists(os.path.join(in_path, currentFilename)):
+
+        name, extension = in_filename.split(".")
+
+        currentFilename = "{0}_{1}.{2}".format(name, index, extension)
+
+        index = index + 1
+
+    if in_return_full_path:
+
+        return os.path.join(in_path, currentFilename)
+
+    else:
+
+        return currentFilename
 
 
 def building_image(img_google):
@@ -167,9 +245,9 @@ def shapefile_creator(features, n, wkid):
     :return (string) path of shapefile
     """
     arcpy.env.overwriteOutput = True
-    building_footprint_1 = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_1_{}.shp".format(n)
-    building_footprint_2 = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_2_{}.shp".format(n)
-    building_footprint_z21 = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/building_footprint_z21_{}.shp".format(n)  # final shapefile
+    building_footprint_1 = "building_footprint_1_{}.shp".format(n)
+    building_footprint_2 = "building_footprint_2_{}.shp".format(n)
+    building_footprint_z21 = "building_footprint_z21_{}.shp".format(n)  # final shapefile
     arcpy.CopyFeatures_management(features, building_footprint_1)
 
     #  project
