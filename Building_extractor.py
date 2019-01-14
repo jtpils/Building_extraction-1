@@ -215,7 +215,10 @@ if __name__ == "__main__":
 
     # shapefile_bat = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/StHyacinthe_bat.shp"
     # RemovePolygonHoles_management(shapefile_bat)
+    import os
 
+    a = os.getcwd()
+    print a
     shapefile_contour_path = "H:\shapefile\zone_risque\zone_test_chicout.shp"
     building_extractor(shapefile_contour_path)
 
