@@ -148,50 +148,50 @@ def building_image(img_google):
     return img_bat
 
 
-def tracer_contour(img_bat, img_google):
-    """
-    Show contours of detected buildings on the screenshot. (not needed, development tool just to have a visual)
-    :param img_bat: (grayscale image) Image of buildings
-    :param img_google: (RBG image) Screenshot image
-    """
-    im2, contours, hierarchy = cv.findContours(img_bat, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-    # approx = []
-    # for c in contours:
-    #     epsilon = 0.01 * cv.arcLength(c, True)
-    #     approx.append(cv.approxPolyDP(c, epsilon, True))
-
-    # Tracer les contours
-    #cv.drawContours(img_google, contours, -1, (0, 255, 0), 3)
-    # Tracer individuellement
-
-
-    dist = []
-    pt = Point(1000, 1000)
-    for _ in contours:
-        dist.append(pt.distance(Point(_[0][0][:])))
-        print(_)
-        print("--------------")
-        print(_[0][:][0])
-        print("--------------")
-        print(Point(_[0][0][:]))
-        print("--------------")
-        print(_[0][0][0])
-        print("--------------")
-        print(type(_))
-        # print(_)
-        # print(type(_))
-    #     dist.append(pt.distance(Polygon(_)))
-    print(dist)
-    # print(type(dist))
-    # print(type(dist[0]))
-
-    index = dist.index(min(liste_d))
-    cnt = contours[0]
-
-    cv.drawContours(img_google, [cnt], 0, (0, 255, 0), 3)
-
-    screenshot_path_contour = "E:/Charles_Tousignant/Python_workspace/Gari/screenshots/localize_building_contour.png"
-    cv.imwrite(screenshot_path_contour, img_google)
+# def tracer_contour(img_bat, img_google):
+#     """
+#     Show contours of detected buildings on the screenshot. (not needed, development tool just to have a visual)
+#     :param img_bat: (grayscale image) Image of buildings
+#     :param img_google: (RBG image) Screenshot image
+#     """
+#     im2, contours, hierarchy = cv.findContours(img_bat, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+#     # approx = []
+#     # for c in contours:
+#     #     epsilon = 0.01 * cv.arcLength(c, True)
+#     #     approx.append(cv.approxPolyDP(c, epsilon, True))
+#
+#     # Tracer les contours
+#     #cv.drawContours(img_google, contours, -1, (0, 255, 0), 3)
+#     # Tracer individuellement
+#
+#
+#     dist = []
+#     pt = Point(1000, 1000)
+#     for _ in contours:
+#         dist.append(pt.distance(Point(_[0][0][:])))
+#         print(_)
+#         print("--------------")
+#         print(_[0][:][0])
+#         print("--------------")
+#         print(Point(_[0][0][:]))
+#         print("--------------")
+#         print(_[0][0][0])
+#         print("--------------")
+#         print(type(_))
+#         # print(_)
+#         # print(type(_))
+#     #     dist.append(pt.distance(Polygon(_)))
+#     print(dist)
+#     # print(type(dist))
+#     # print(type(dist[0]))
+#
+#     index = dist.index(min(liste_d))
+#     cnt = contours[0]
+#
+#     cv.drawContours(img_google, [cnt], 0, (0, 255, 0), 3)
+#
+#     screenshot_path_contour = "E:/Charles_Tousignant/Python_workspace/Gari/screenshots/localize_building_contour.png"
+#     cv.imwrite(screenshot_path_contour, img_google)
 
     # cv.imshow('Image Google', img_google)
     # cv.waitKey(0)
@@ -245,9 +245,10 @@ def shapefile_creator(features, n, wkid):
     :return (string) path of shapefile
     """
     arcpy.env.overwriteOutput = True
-    building_footprint_1 = "building_footprint_1_{}.shp".format(n)
-    building_footprint_2 = "building_footprint_2_{}.shp".format(n)
-    building_footprint_z21 = "building_footprint_z21_{}.shp".format(n)  # final shapefile
+    cwd = os.getcwd()
+    building_footprint_1 = cwd + r"\output\building_footprint_1_{}.shp".format(n)
+    building_footprint_2 = cwd + r"\output\building_footprint_2_{}.shp".format(n)
+    building_footprint_z21 = cwd + r"\output\building_footprint_z21_{}.shp".format(n)  # final shapefile
     arcpy.CopyFeatures_management(features, building_footprint_1)
 
     #  project

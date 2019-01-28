@@ -64,7 +64,9 @@ def geocode_shapefile(in_shapefile, out_shapefile):
     arcpy.Copy_management(in_shapefile, out_shapefile)
 
     # create additionnal fields
-    arcpy.AddField_management(out_shapefile, "Adresse", "TEXT", field_length=150)
+    arcpy.AddField_management(out_shapefile, "ID_bat", "LONG", 9)
+
+    arcpy.AddField_management(out_shapefile, "Adresse_im", "TEXT", field_length=150)
     arcpy.AddField_management(out_shapefile, "Num_Civ", "LONG", 9)
     arcpy.AddField_management(out_shapefile, "Rue", "TEXT", field_length=80)
     arcpy.AddField_management(out_shapefile, "Ville", "TEXT", field_length=80)
@@ -89,7 +91,7 @@ def geocode_shapefile(in_shapefile, out_shapefile):
     coordTransform = osr.CoordinateTransformation(inSpatialRef, outSpatialRef)
 
     # add address information to output shapefile
-    fields = ["Adresse", "Num_Civ", "Rue", "Ville", "Province", "CP", "Pays"]
+    fields = ["ID_bat", "Adresse_im", "Num_Civ", "Rue", "Ville", "Province", "CP", "Pays"]
     point = ogr.Geometry(ogr.wkbPoint)
     with arcpy.da.UpdateCursor(out_shapefile, fields) as cursor:
         i = 0
@@ -98,28 +100,30 @@ def geocode_shapefile(in_shapefile, out_shapefile):
             point.Transform(coordTransform)
             info = latlon2address(point.GetY(), point.GetX())
             for j in range(len(fields)):
-                row[j] = info[j]
-                if row[j] is None:  # when we get no info
-                    row[j] = "no info"
+                if j == 0:
+                    row[j] = i
+                else:
+                    row[j] = info[j-1]
+                    if row[j] is None:  # when we get no info
+                        row[j] = "no info"
             cursor.updateRow(row)
             i += 1
             print("{} buildings geolocalized.       {}".format(i, elapsed_time()))
 
 
 def main():
-    """
-    Main function.
-    Change the path of inShapefile and outShapefile for the desired building shapefile to reverse geocode and
-    the output shapefile location/name.
-    """
-    inShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/Papineauville_bat_geocode.shp"
-    outShapefile = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/PetiteNation/Papineauville_bat_geocode_ar.shp"
+    cwd = os.getcwd()
+    # inShapefile = cwd + r"\output\building_footprint.shp"
+    # outShapefile = cwd + r"\output\building_footprint_geocode.shp"
+
+    inShapefile = "H:\shapefile\Zones_extraction\SJSR\Sabrevois_bat_ajout_17.shp"
+    outShapefile = "H:\shapefile\Zones_extraction\SJSR\Sabrevois_bat_ajout_17jan.shp"
     geocode_shapefile(inShapefile, outShapefile)
-
-
-if __name__ == "__main__":
-    main()
     print("##############################")
     print("Building shapefile reverse geocode complete!")
     print(elapsed_time())
     print("##############################")
+
+
+if __name__ == "__main__":
+    main()

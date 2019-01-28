@@ -30,16 +30,17 @@ def final_shapefile(n):
     :param n: (int) number of shapefiles to merge and aggregate
     """
     global shapefile_list
+    cwd = os.getcwd()
     shapefile_list = filter(None, shapefile_list)  # remove None values from list
     arcpy.env.overwriteOutput = True
-    building_footprint0 = "building_footprint_del.shp"
-    building_footprint = "building_footprint.shp"  # final shapefile
+    building_footprint0 = cwd + r"\output\building_footprint_del.shp"
+    building_footprint = cwd + r"\output\building_footprint.shp"  # final shapefile
 
     print("Creating final shapefile...                                                             {}".format(elapsed_time()))
     print("Merging all previously created shapefiles...")
     arcpy.Merge_management(shapefile_list, building_footprint0)
     for i in range(n):
-        arcpy.Delete_management("building_footprint_z21_{}.shp".format(i+1))
+        arcpy.Delete_management(cwd + r"\output\building_footprint_z21_{}.shp".format(i+1))
     print("Merge complete.                                                                         {}".format(elapsed_time()))
 
     print("Dissolving polygons...")
@@ -81,6 +82,7 @@ def scan(lat, lon_s, lon_e, n, contour_buffer, wkid):
     :param wkid: (int) MTM zone wkid
     """
     print("Process {}: Taking screenshots...".format(n))
+    cwd = os.getcwd()
     options = Options()
     options.add_argument('--headless')
     options.add_argument('--disable-gpu')
@@ -88,7 +90,7 @@ def scan(lat, lon_s, lon_e, n, contour_buffer, wkid):
     options.add_argument('disable-infobars')
     options.add_argument("--disable-extensions")
     options.add_argument('--no-sandbox')
-    driver = webdriver.Chrome(r"C:\Users\bruntoca\Documents\GitHub\Building_extraction\chromedriver", chrome_options=options)
+    driver = webdriver.Chrome(cwd + r"\chromedriver", chrome_options=options)
     driver.set_window_size(2418, 2000)
 
     counter_screenshots = 0  # for counting number of screenshots
@@ -105,7 +107,7 @@ def scan(lat, lon_s, lon_e, n, contour_buffer, wkid):
             png = driver.get_screenshot_as_png()
             im = Image.open(BytesIO(png))  # uses PIL library to open image in memory
             im = im.crop((418, 0, 2418, 2000))  # get rid of the left panel
-            im_path = "screenshot{}.png".format(counter_screenshots + 1 + n*1000000)
+            im_path = cwd + r"\output\screenshot{}.png".format(counter_screenshots + 1 + n*1000000)
             im.save(im_path)
             image_bat = building_image(im_path)
             print("Process {}: Detecting and extracting building footprints from screenshot #{}...           {}".format(n, counter_screenshots + 1, elapsed_time()))
@@ -136,23 +138,17 @@ def start_process(lat_s, lon_s, lat_e, lon_e, shape_path):
     :return n: (int) number of total processes
     """
     global shapefile_list
+    cwd = os.getcwd()
     delta_lat = lat_e - lat_s
     n = int(delta_lat/CONST_dlat) + 1
     print("Multiprocessing building extraction. Task will be split in {} different processes.".format(n))
     arcpy.env.workspace = arcpy.env.scratchGDB
     arcpy.env.overwriteOutput = True
     buffer_ = "buffer"
-    buffer_p = "temp_buffer_proj.shp"
+    buffer_p = cwd + r"\output\temp_buffer_proj.shp"
     arcpy.Buffer_analysis(shape_path, buffer_, "200 meters")
     sr = arcpy.SpatialReference(4326)  # WGS84
     arcpy.Project_management(buffer_, buffer_p, sr)  # Project
-
-    # get MTM zone wkid
-    # zone = fiona.open(shape_path)
-    # polygon = zone.next()
-    # zone.close()
-    # shp_geom = shape(polygon['geometry'])
-    # centroidX = shp_geom.centroid.x
 
     lon_moy = (lon_s + lon_e) / 2
     wkid = 2950
@@ -211,19 +207,21 @@ def building_extractor(shape_path):
     final_shapefile(num)
 
 
-if __name__ == "__main__":
-
-    # shapefile_bat = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/Zones_extraction/Autres/StHyacinthe_bat.shp"
+def main():
+    # shapefile_bat = "H:\shapefile\Zones_extraction\SJSR\Beloeil_bat_geocode_v2.shp"
     # RemovePolygonHoles_management(shapefile_bat)
-    import os
 
-    a = os.getcwd()
-    print a
-    shapefile_contour_path = "H:\shapefile\zone_risque\zone_test_chicout.shp"
+    # shapefile_contour_path = r"H:\shapefile\zone_risque\test.shp"
+    # building_extractor(shapefile_contour_path)
+
+    shapefile_contour_path = "H:\shapefile\Zones_extraction\SJSR\SJSR_munic.shp"
+    building_extractor(shapefile_contour_path)
+    shapefile_contour_path = "H:\shapefile\Zones_extraction\SJSR\Sabrevois_munic.shp"
     building_extractor(shapefile_contour_path)
 
 
-
+if __name__ == "__main__":
+    main()
 
 
 
