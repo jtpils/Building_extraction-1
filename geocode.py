@@ -48,8 +48,10 @@ def latlon2address(lat, lon):
         match = re.match(r'(\d+)(?:-\d+(?=\s))?\s(.*)', no_st).groups()
         no = match[0]
         st = match[1]
-
-    return b.address, no, st, b.city, b.state, b.postal, b.country
+    st_mod = modif_nom_rue(st)
+    adresse_im = no + " " + st_mod
+    #return b.address, no, st, b.city, b.state, b.postal, b.country
+    return adresse_im, no, st, b.city, b.state, b.postal, b.country
 
 
 def geocode_shapefile(in_shapefile, out_shapefile):
@@ -111,14 +113,48 @@ def geocode_shapefile(in_shapefile, out_shapefile):
             print("{} buildings geolocalized.       {}".format(i, elapsed_time()))
 
 
+def modif_nom_rue(nom_rue):
+    # Modifications générales
+    if nom_rue[-1] == "N":
+        nom_rue = nom_rue + "ord"
+    if nom_rue[-1] == "S":
+        nom_rue = nom_rue + "ud"
+    if nom_rue[-1] == "E":
+        nom_rue = nom_rue + "st"
+    if nom_rue[-1] == "O":
+        nom_rue = nom_rue + "est"
+    if nom_rue.find("St-") != -1:
+        i = nom_rue.find("St-")
+        nom_rue = nom_rue[0:i] + "Saint-" + nom_rue[i+3:]
+    if nom_rue.find("Ste-") != -1:
+        i = nom_rue.find("Ste-")
+        nom_rue = nom_rue[0:i] + "Sainte-" + nom_rue[i + 4:]
+    if nom_rue[0:4] == "1er ":
+        nom_rue = nom_rue[4:] + " 1e"
+    if nom_rue[0].isdigit():
+        index_e = nom_rue.find("e")
+        nom_rue = nom_rue[index_e + 2:] + " " + nom_rue[0:index_e + 1]
+
+    # Exceptions SJSR
+    if nom_rue == "Chemin des Patriotes Est":
+        nom_rue = "Route 133"
+
+    return nom_rue
+
+
 def main():
-    cwd = os.getcwd()
+    # cwd = os.getcwd()
     # inShapefile = cwd + r"\output\building_footprint.shp"
     # outShapefile = cwd + r"\output\building_footprint_geocode.shp"
 
-    inShapefile = "H:\shapefile\Zones_extraction\SJSR\Sabrevois_bat_ajout_17.shp"
-    outShapefile = "H:\shapefile\Zones_extraction\SJSR\Sabrevois_bat_ajout_17jan.shp"
+    # inShapefile = r"H:\shapefile\TEST\bat_TEST.shp"
+    # outShapefile = r"H:\shapefile\TEST\bat_TEST_RESULT.shp"
+
+    inShapefile = r"H:\shapefile\Zones_extraction\SJSR\SJSR_Sabrevois_zone_risk_verif.shp"
+    outShapefile = r"H:\shapefile\TEST\SJSR_SabrevoisBAT.shp"
+
     geocode_shapefile(inShapefile, outShapefile)
+
     print("##############################")
     print("Building shapefile reverse geocode complete!")
     print(elapsed_time())
@@ -127,3 +163,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    # print(modif_nom_rue("1er Avenue"))

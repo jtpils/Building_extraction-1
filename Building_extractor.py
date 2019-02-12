@@ -214,10 +214,11 @@ def main():
     # shapefile_contour_path = r"H:\shapefile\zone_risque\test.shp"
     # building_extractor(shapefile_contour_path)
 
-    shapefile_contour_path = "H:\shapefile\Zones_extraction\SJSR\SJSR_munic.shp"
+    shapefile_contour_path = r"C:\Users\bruntoca\Downloads\Desktop\Export_Output.shp"
     building_extractor(shapefile_contour_path)
-    shapefile_contour_path = "H:\shapefile\Zones_extraction\SJSR\Sabrevois_munic.shp"
-    building_extractor(shapefile_contour_path)
+
+    # shapefile_contour_path = "H:\shapefile\Zones_extraction\SJSR\Sabrevois_munic.shp"
+    # building_extractor(shapefile_contour_path)
 
 
 if __name__ == "__main__":

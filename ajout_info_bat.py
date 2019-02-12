@@ -10,7 +10,7 @@
 
 from utils import *
 import pandas as pd
-
+import geopandas as gpd
 
 
 def add_matricule(inBat, inMatrice):
@@ -18,12 +18,6 @@ def add_matricule(inBat, inMatrice):
     copie_batiments = create_ScratchGDB_name("copie_batiments")
     arcpy.CopyFeatures_management(inBat, copie_batiments)
     out_shp = create_ScratchGDB_name("out_shp")
-
-    # arcpy.AddField_management(copie_batiments, "Matricule", "LONG")
-    # arcpy.AddField_management(copie_batiments, "Valeur_bat", "LONG")
-    # arcpy.AddField_management(copie_batiments, "Nb_etages", "SHORT")
-    # arcpy.AddField_management(copie_batiments, "Pres_ss1", "SHORT")
-    # arcpy.AddField_management(copie_batiments, "Zrc", "FLOAT")
 
     # Create FieldMappings object
     fm_id = arcpy.FieldMap()
@@ -51,7 +45,9 @@ def add_matricule(inBat, inMatrice):
 
     matricule_name = fm_matricule.outputField
     matricule_name.name = 'Matricule'
+    matricule_name.type = "Double"
     fm_matricule.outputField = matricule_name
+
     lot_name = fm_lot.outputField
     lot_name.name = 'Lot'
     fm_lot.outputField = lot_name
@@ -79,7 +75,7 @@ def add_matricule(inBat, inMatrice):
     return out_shp
 
 
-def add_data(inMNT):
+def add_data(inMNT, inAD, inXLS):
     import ogr
     from rasterstats import zonal_stats
     cwd = os.getcwd()
@@ -115,19 +111,22 @@ def add_data(inMNT):
     new_field = ogr.FieldDefn('Tot_vul', ogr.OFTReal)
     layer.CreateField(new_field)
 
-    info = pd.read_excel('H:/shapefile/MATRICULES/56083-GARI.xls')
+    info = pd.read_excel(inXLS)
 
     serie_mat = info['Matricule']
-    serie_aire_ss = info['Aire totale ss']
-    serie_etage = info['Nb etages']
-    serie_util = info['Type util']
+    serie_aire_ss = info['Aire_totale_ss']
+    serie_etage = info['Nb_etages']
+    serie_util = info['Type_util']
+    serie_valeur_bat = info['Valeur_bat']
 
     zs = zonal_stats(bat_shp, inMNT)
+    ADIDU, Tot_vul = get_vulnerabilite(bat_shp, inAD)
 
     for i in range(len(layer)):
         feature = layer.GetFeature(i)
-        matricule = feature['Matricule']
-        print "Les informations du bâtiment ayant le matricule {} ont été ajoutés".format(matricule)
+        matricule = str(feature['Matricule'])
+        if i % 1000:
+            print "Les informations du bâtiment ayant le matricule {} ont été ajoutés".format(matricule)
         if matricule is None:
             j = feature.GetFieldIndex("Nb_etages")
             feature.SetField(j, 9999)
@@ -152,7 +151,7 @@ def add_data(inMNT):
             layer.SetFeature(feature)
         else:
             matricule_format = matricule[0:4] + "-" + matricule[4:6] + "-" + matricule[6:10]
-            nb_etage, pres_ss, util = search_xls(matricule_format, serie_mat, serie_aire_ss, serie_etage, serie_util)
+            nb_etage, pres_ss, util, valeur_bat = search_xls(matricule_format, serie_mat, serie_aire_ss, serie_etage, serie_util, serie_valeur_bat)
             j = feature.GetFieldIndex("Nb_etages")
             feature.SetField(j, nb_etage)
             layer.SetFeature(feature)
@@ -160,7 +159,7 @@ def add_data(inMNT):
             feature.SetField(j, pres_ss)
             layer.SetFeature(feature)
             j = feature.GetFieldIndex("Valeur_bat")
-            feature.SetField(j, 123456)  # Ajouter les vraies valeurs
+            feature.SetField(j, valeur_bat)  # Ajouter les vraies valeurs
             layer.SetFeature(feature)
 
             if pres_ss == 1:
@@ -176,46 +175,77 @@ def add_data(inMNT):
             feature.SetField(j, util)
             layer.SetFeature(feature)
             j = feature.GetFieldIndex("ADIDU")
-            feature.SetField(j, "24560338")  # Ajouter les vraies valeurs
+            feature.SetField(j, ADIDU[i])
             layer.SetFeature(feature)
             j = feature.GetFieldIndex("Tot_vul")
-            feature.SetField(j, 0.5)  # Ajouter les vraies valeurs
+            feature.SetField(j, Tot_vul[i])
             layer.SetFeature(feature)
     shapeData = None
 
 
-def search_xls(mat, matricule, aire_ss, nb_etage, type_util):
+def search_xls(mat, matricule, aire_ss, nb_etage, type_util, valeur_bat):
 
     if mat in list(matricule):
-        a = list(matricule).index(mat)
-        etage = nb_etage[a]
-        if aire_ss[a] > 0:
+        i = list(matricule).index(mat)
+        etage = nb_etage[i]
+        if math.isnan(etage):
+            etage = 0  # il y a de l'information sur le matricule, mais pas sur le champs en question
+        if math.isnan(aire_ss[i]):
+            pres_ss = 99  # il y a de l'information sur le matricule, mais pas sur le champs en question
+        elif aire_ss[i] > 0:
             pres_ss = 1
         else:
             pres_ss = 0
-        util = str(type_util[a])
-    else:
-        etage = 9999
-        pres_ss = 9999
-        util = "9999"
-    return etage, pres_ss, util
+        util = str(type_util[i])
+        valeur_bat = int(valeur_bat[i])
+    else:  # il n'y a pas d'information sur le matricule en question
+        etage = 0  #
+        pres_ss = 99  #
+        util = "0"  #
+        valeur_bat = 0
+    return etage, pres_ss, util, valeur_bat
+
+
+def get_vulnerabilite(in_bat, in_AD):
+    bat = gpd.read_file(in_bat)
+    AD = gpd.read_file(in_AD)
+    crs = bat.crs
+    AD = AD.to_crs(crs)
+    centroids = bat.centroid
+    # print bat.values[0][5]
+    polygons = AD.geometry
+    ADIDU_liste, Tot_vul_liste = [], []
+    for centroid in centroids:
+        for i, polygon in enumerate(polygons):
+            if polygon.contains(centroid):
+                ADIDU_liste.append(str(AD.loc[i, "ADIDU"]))
+                Tot_vul_liste.append(AD.loc[i, "Tot_vul"])
+    return ADIDU_liste, Tot_vul_liste
 
 
 def main():
     clean_scratch_dir()
     cwd = os.getcwd()
-    inBat = cwd + r"\output\building_footprint_geocode.shp"
-    inMatrice = "H:\shapefile\MATRICULES\MATRICE\SICADA_LLOT_S.shp"
-    inMNT = "H:\shapefile\inputs\Modele Numerique de Terrain\mnt_grand.tif"
+    inMatrice = "H:\shapefile\MATRICULES\MATRICE\SICADA_LLOT_S.shp"  # non complet
+    inAD = r"H:\shapefile\SJSR_complet\Limites des aires de diffusion avec taux\AD_avecTaux_SJSR_Sabrevois.shp"
+
+    # inBat = cwd + r"\output\building_footprint_geocode.shp"
+    # inMNT = "H:\shapefile\inputs\Modele Numerique de Terrain\mnt_grand.tif"
+    # inXLS = r"H:\shapefile\MATRICULES\56083-GARI.xls"
+
+    inBat = r"H:\shapefile\SJSR_complet\Batiments\Batiments_SJSR.shp"
+    inMNT = "H:\shapefile\SJSR_complet\MNT\mnt_sjsr.tif"  # non complet
+    inXLS = r"C:\Users\bruntoca\Documents\GitHub\Building_extraction\output\join_valeur_bat.xlsx"
+
+    inBat = r"H:\shapefile\TEST\SJSR_SabrevoisBAT.shp"
+
     outBat = cwd + "\output\Batiments.shp"
     outCen = cwd + "\output\Centroides.shp"
 
-    # inBat = r"H:\shapefile\SJSR_complet\Batiments\SJSR_bat_zone_risk_verif.shp"
-    # inMNT = "H:\shapefile\SJSR_complet\MNT\mnt_sjsr.tif"
-
     bat_mat = add_matricule(inBat, inMatrice)
     arcpy.FeatureClassToFeatureClass_conversion(bat_mat, cwd + "\output", "Batiments")
-    add_data(inMNT)
+    arcpy.AddSpatialIndex_management(outBat)
+    add_data(inMNT, inAD, inXLS)
     arcpy.FeatureToPoint_management(outBat, outCen, point_location="INSIDE")
     print("##############################")
     print("L'ajout est complété!")
@@ -226,86 +256,3 @@ def main():
 if __name__ == "__main__":
     arcpy.env.overwriteOutput = True
     main()
-
-
-    # import ogr
-    # from rasterstats import zonal_stats
-    # cwd = os.getcwd()
-    # bat_shp = cwd + r"\output\building_footprint_geocode.shp"
-    # MNT = "H:\shapefile\inputs\Modele Numerique de Terrain\mnt_grand.tif"
-    #
-    # shapeData = ogr.Open(bat_shp, 1)
-    # layer = shapeData.GetLayer()  # get possible layers.
-    #
-    #
-    # zs = zonal_stats(bat_shp, MNT)
-    # print zs[0]
-    #
-    # for i, feature in enumerate(layer):
-    #     geom = feature.GetGeometryRef()
-    #     print zs[i]['max']
-
-
-    # for batiment in fiona.open(bat_train):
-    #     if pt.within(shape(batiment['geometry'])):
-    #         point_list_train.append(pt)
-    #
-    #         toit_std = np.std(xyz[:, 2])
-    #         toit_mean = np.mean(xyz[:, 2])
-    #         toit_min = np.min(xyz[:, 2])
-    #         toit_max = np.max(xyz[:, 2])
-    #         toit_std_list_train.append(toit_std)
-    #         toit_mean_list_train.append(toit_mean)
-    #         toit_min_list_train.append(toit_min)
-    #         toit_max_list_train.append(toit_max)
-    #
-    #         poly = shape(batiment['geometry'])
-    #         zs = zonal_stats(poly, MNT)
-    #         zs_mean = zs[0]['mean']
-    #         zs_min = zs[0]['min']
-    #         zs_max = zs[0]['max']
-    #
-
-
-
-    # field_names = [layer_defn.GetFieldDefn(i).GetName() for i in
-    #                range(layer_defn.GetFieldCount())]  # store the field names as a list of strings
-    # print len(field_names)  # so there should be just one at the moment called "FID"
-    # print field_names  # will show you the current field names
-
-    # new_field = ogr.FieldDefn('Nb_etages', ogr.OFTInteger)
-    # layer.CreateField(new_field)
-    #
-    # new_field = ogr.FieldDefn('Pres_ss1', ogr.OFTInteger)
-    # layer.CreateField(new_field)
-    #
-    # new_field = ogr.FieldDefn('Valeur_bat', ogr.OFTInteger)
-    # layer.CreateField(new_field)
-    #
-    # new_field = ogr.FieldDefn('Zrc', ogr.OFTReal)
-    # layer.CreateField(new_field)
-    #
-    # new_field = ogr.FieldDefn('Type_util', ogr.OFTString)
-    # layer.CreateField(new_field)
-    #
-    # new_field = ogr.FieldDefn('ADIDU', ogr.OFTString)
-    # layer.CreateField(new_field)
-    #
-    # new_field = ogr.FieldDefn('Tot_vul', ogr.OFTReal)
-    # layer.CreateField(new_field)
-    #
-    # info = pd.read_excel('H:/shapefile/MATRICULES/56083-GARI.xls')
-    #
-    # serie_mat = info['Matricule']
-    # serie_aire_ss = info['Aire totale ss']
-    # serie_etage = info['Nb etages']
-    #
-    # for i in range(len(layer)):
-    #     feature = layer.GetFeature(i)
-    #     matricule = feature['Matricule']
-    #     print matricule
-    #     if matricule is None:
-    #         j = feature.GetFieldIndex("Nb_etages")
-    #         feature.SetField(j, 9999)
-    #         layer.SetFeature(feature)
-    #         j = feature.GetFieldIndex("Pre
