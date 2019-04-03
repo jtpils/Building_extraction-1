@@ -14,6 +14,8 @@ import arcpy
 import cv2 as cv
 import numpy as np
 import shutil
+import sys
+import geocoder
 #from shapely.geometry import Point
 
 start_time = time.time()  # start timer
@@ -362,6 +364,26 @@ def convertCoord(lon, lat, inEPSG, outEPSG):
     # epsg:4326  WGS84
     # epsg:2950  MTM8
     # epsg:6622  Quebec Lambert
+
+
+def address2latlon(addr):
+    """
+    Return the coordinates of the corresponding address
+    :param addr: (string) address
+    :return (list) list of coordinates (float) [lat, lon]
+    """
+    key = "AjVyhHv7lq__hT5_XLZ8jU0WbQpUIEUhQ7_nlHDw9NlcID9jRJDYLSSkIQmuQJ82"  # quota de 125 000 requêtes/année
+    # b = geocoder.bing([lat, lon], key=key)
+    g = geocoder.bing(addr, key=key)
+    #g = geocoder.google(addr)
+    gjson = g.json
+    timeout = time.time() + 7
+    while gjson is None:  # Redo until we have a response
+        g = geocoder.google(addr)
+        gjson = g.json
+        if time.time() > timeout:  # if google can't find the address after a certain amount of time
+            sys.exit("Google ne trouve pas cette adresse, veuillez réessayer")
+    return g.latlng
 
 
 def RemovePolygonHoles_management(in_fc, threshold=0.0):

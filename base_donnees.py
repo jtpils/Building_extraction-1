@@ -1,7 +1,7 @@
 
 import cx_Oracle
 
-dsn_tns = cx_Oracle.makedsn('192.168.0.233', 1521, service_name='EMGSPROD2012')
+dsn_tns = cx_Oracle.makedsn('192.168.0.233', "1521", service_name='EMGSPROD2012.WORLD')
 conn = cx_Oracle.connect(user=r'GARI', password='Inrs2019', dsn=dsn_tns)
 
 

@@ -30,7 +30,7 @@ def add_matricule(inBat, inMatrice):
     fm_CP = arcpy.FieldMap()
     fm_pays = arcpy.FieldMap()
     fm_matricule = arcpy.FieldMap()
-    fm_lot = arcpy.FieldMap()
+    #fm_lot = arcpy.FieldMap()
 
     fm_id.addInputField(copie_batiments, "ID_bat")
     fm_adresse.addInputField(copie_batiments, "Adresse_im")
@@ -40,17 +40,18 @@ def add_matricule(inBat, inMatrice):
     fm_province.addInputField(copie_batiments, "Province")
     fm_CP.addInputField(copie_batiments, "CP")
     fm_pays.addInputField(copie_batiments, "Pays")
-    fm_matricule.addInputField(inMatrice, "SI0317C")
-    fm_lot.addInputField(inMatrice, "SI0424J")
+    fm_matricule.addInputField(inMatrice, "Matricule")
+    #fm_matricule.addInputField(inMatrice, "SI0317C")
+    #fm_lot.addInputField(inMatrice, "SI0424J")
 
     matricule_name = fm_matricule.outputField
     matricule_name.name = 'Matricule'
     matricule_name.type = "Double"
     fm_matricule.outputField = matricule_name
 
-    lot_name = fm_lot.outputField
-    lot_name.name = 'Lot'
-    fm_lot.outputField = lot_name
+    # lot_name = fm_lot.outputField
+    # lot_name.name = 'Lot'
+    # fm_lot.outputField = lot_name
 
     fms.addFieldMap(fm_id)
     fms.addFieldMap(fm_adresse)
@@ -61,7 +62,7 @@ def add_matricule(inBat, inMatrice):
     fms.addFieldMap(fm_CP)
     fms.addFieldMap(fm_pays)
     fms.addFieldMap(fm_matricule)
-    fms.addFieldMap(fm_lot)
+    # fms.addFieldMap(fm_lot)
 
     # Spatial join for Matricule field
     arcpy.SpatialJoin_analysis(target_features=copie_batiments,
@@ -226,15 +227,15 @@ def get_vulnerabilite(in_bat, in_AD):
 def main():
     clean_scratch_dir()
     cwd = os.getcwd()
-    inMatrice = "H:\shapefile\MATRICULES\MATRICE\SICADA_LLOT_S.shp"  # non complet
+    inMatrice = "H:\shapefile\MATRICULES\MATRICE\Matrice_SJSR_Sabrevois.shp"
     inAD = r"H:\shapefile\SJSR_complet\Limites des aires de diffusion avec taux\AD_avecTaux_SJSR_Sabrevois.shp"
 
     # inBat = cwd + r"\output\building_footprint_geocode.shp"
     # inMNT = "H:\shapefile\inputs\Modele Numerique de Terrain\mnt_grand.tif"
     # inXLS = r"H:\shapefile\MATRICULES\56083-GARI.xls"
 
-    inBat = r"H:\shapefile\SJSR_complet\Batiments\Batiments_SJSR.shp"
-    inMNT = "H:\shapefile\SJSR_complet\MNT\mnt_sjsr.tif"  # non complet
+    # inBat = r"H:\shapefile\SJSR_complet\Batiments\Batiments_SJSR.shp"
+    inMNT = "H:\shapefile\SJSR_complet\MNT\MNT_SJSR_Sabrevois.tif"
     inXLS = r"C:\Users\bruntoca\Documents\GitHub\Building_extraction\output\join_valeur_bat.xlsx"
 
     inBat = r"H:\shapefile\TEST\SJSR_SabrevoisBAT.shp"

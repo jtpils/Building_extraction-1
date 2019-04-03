@@ -6,28 +6,9 @@
 # Project : GARI
 # Description : Extraction building footprint according to the address
 # ---------------------------------------------------------------------------
-import sys
-import geocoder
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from utils import *
-
-
-def address2latlon(addr):
-    """
-    Return the coordinates of the corresponding address
-    :param addr: (string) address
-    :return (list) list of coordinates (float) [lat, lon]
-    """
-    g = geocoder.google(addr)
-    gjson = g.json
-    timeout = time.time() + 7
-    while gjson is None:  # Redo until we have a response
-        g = geocoder.google(addr)
-        gjson = g.json
-        if time.time() > timeout:  # if google can't find the address after a certain amount of time
-            sys.exit("Google ne trouve pas cette adresse, veuillez réessayer")
-    return g.latlng
 
 
 def localize_point(lat, lon):
@@ -56,12 +37,12 @@ def building_locator(adr):
     options.add_argument('disable-infobars')
     options.add_argument("--disable-extensions")
     options.add_argument('--no-sandbox')
-    driver = webdriver.Chrome("E:/Charles_Tousignant/Python_workspace/Gari/chromedriver", chrome_options=options)
+    driver = webdriver.Chrome(r"C:\Users\bruntoca\Documents\GitHub\Building_extraction\chromedriver", chrome_options=options)
     driver.set_window_size(2000, 2000)
     feat = []
     url = "https://www.google.ca/maps/@%f,%f,21z?hl=en-US" % (lat, lon)
     driver.get(url)
-    screenshot_path = "E:/Charles_Tousignant/Python_workspace/Gari/screenshots/localize_building.png"
+    screenshot_path = r"C:\Users\bruntoca\Documents\GitHub\Building_extraction\temp\localize_building.png"
     driver.save_screenshot(screenshot_path)
 
     print("Detecting and extracting building footprints from screenshot...")
@@ -77,8 +58,8 @@ def building_locator(adr):
     index = liste_d.index(min(liste_d))
 
     print("Creating shapefile...")
-    localized_building = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/localized_building_0.shp"
-    localized_building_proj = "E:/Charles_Tousignant/Python_workspace/Gari/shapefile/localized_building.shp"
+    localized_building = r"C:\Users\bruntoca\Documents\GitHub\Building_extraction\temp\localized_building_0.shp"
+    localized_building_proj = r"C:\Users\bruntoca\Documents\GitHub\Building_extraction\temp\localized_building.shp"
     if arcpy.Exists(localized_building_proj):  # delete shapefile if it already exists
         arcpy.Delete_management(localized_building_proj)
     arcpy.CopyFeatures_management(feat[index], localized_building)
@@ -101,8 +82,9 @@ def building_locator(adr):
 
 
 if __name__ == "__main__":
-    address = raw_input(
-        "Entrez l'adresse du bâtiment à extraire (par exemple: 165 rue de Liège, St-jean-sur-Richelieu, Québec)")
+    # address = raw_input(
+    #     "Entrez l'adresse du bâtiment à extraire (par exemple: 165 rue de Liège, St-jean-sur-Richelieu, Québec)")
+    address = "3500 Avenue Oxford, Montreal"
     building_locator(address)
     # a = '165 rue de Liege, St-jean-sur-Richelieu, Quebec'  # point pas dans le polygone
     # b = "116 rue de Liege, St-jean-sur-Richelieu, Quebec"  # point dans le polygone

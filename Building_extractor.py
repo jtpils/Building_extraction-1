@@ -214,7 +214,7 @@ def main():
     # shapefile_contour_path = r"H:\shapefile\zone_risque\test.shp"
     # building_extractor(shapefile_contour_path)
 
-    shapefile_contour_path = r"C:\Users\bruntoca\Downloads\Desktop\Export_Output.shp"
+    shapefile_contour_path = r"H:\shapefile\zone_risque\zone_test.shp"
     building_extractor(shapefile_contour_path)
 
     # shapefile_contour_path = "H:\shapefile\Zones_extraction\SJSR\Sabrevois_munic.shp"

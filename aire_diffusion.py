@@ -213,7 +213,7 @@ def calc_vuln(valeur, stats):
 
 if __name__ == "__main__":
 
-    in_shp = "H:\shapefile\Aires_diffusion\Aires_Diffusion_StBlaise.shp"
+    in_shp = "H:\shapefile\Aires_diffusion\BV_complet\AD_Beloeil.shp"
     add_taux(in_shp)
 
     print("##############################")

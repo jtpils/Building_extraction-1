@@ -8,7 +8,6 @@
 # Create and fill new fields related to the address in the attribute table.
 # ---------------------------------------------------------------------------
 import re
-import geocoder
 import ogr
 import osr
 from utils import *
@@ -21,7 +20,7 @@ def latlon2address(lat, lon):
     :param lon: (float) longitude
     :return n: (tuple) address of coordinate (address, street, city, state, postal, country)
     """
-    key = "AjBnbJXTfnqbk1fgDACBIfrnhHs6SMQGGi6XGzaqCw2lyQ_RjtnCSQaCGrFlXS_L"  # quota de 125 000 requêtes/année
+    key = "AjVyhHv7lq__hT5_XLZ8jU0WbQpUIEUhQ7_nlHDw9NlcID9jRJDYLSSkIQmuQJ82"  # quota de 125 000 requêtes/année
     b = geocoder.bing([lat, lon], method="reverse", key=key)
     timeout = time.time() + 10
     while b.city is None:
@@ -136,9 +135,48 @@ def modif_nom_rue(nom_rue):
         nom_rue = nom_rue[index_e + 2:] + " " + nom_rue[0:index_e + 1]
 
     # Exceptions SJSR
-    if nom_rue == "Chemin des Patriotes Est":
-        nom_rue = "Route 133"
-
+    if nom_rue == "Route 133":
+        nom_rue = "CHEMIN DES PATRIOTES EST"
+    if nom_rue == "Chemin des Patriotes Sud":
+        nom_rue = "ROUTE 133"
+    # if nom_rue == "Chemin des Patriotes Est":
+    #     nom_rue = "ROUTE 133"
+    if nom_rue == "Rue Ocain":
+        nom_rue = "RUE O'CAIN"
+    if nom_rue == "Rue Prat":
+        nom_rue = "RUE DU PRAT"
+    if nom_rue == "RTE-223":
+        nom_rue = "ROUTE 223"
+    if nom_rue == "Rue 1re":
+        nom_rue = "RUE 1E"
+    if nom_rue == "Rue 9e":
+        nom_rue = "AVENUE 9E"
+    if nom_rue == "Saint-Pierre St":
+        nom_rue = "RUE SAINT PIERRE"
+    if nom_rue == "Rue Saint-Germain":
+        nom_rue = "RUE ST GERMAIN"
+    if nom_rue == "Saint-Paul St":
+        nom_rue = "RUE SAINT PAUL"
+    if nom_rue == u"Rue de l'Île-Sainte-Marie":
+        nom_rue = u"RUE DE L'ÎLE SAINTE MARIE"
+    if nom_rue == "Rue William P Christie":
+        nom_rue = "RUE WILLIAM P. CHRISTIE"
+    if nom_rue == "Avenue 1re":
+        nom_rue = "AVENUE 1E"
+    if nom_rue == "Avenue Chevalier":
+        nom_rue = "AVENUE DU DOCTEUR CHEVALIER"
+    if nom_rue == u"Allée de Riveraine":
+        nom_rue = u"ALLÉE DE LA RIVERAINE"
+    if nom_rue == "Rue Messier":
+        nom_rue = "RUE REID"
+    if nom_rue == "Place Donat":
+        nom_rue = "RUE DONAT"
+    if nom_rue == "Rue Jean-Louis":
+        nom_rue = "RUE JEAN LOUIS"
+    if nom_rue == u"Rue Romuald-Rémillard":
+        nom_rue = u"RUE ROMUALD RÉMILLARD"
+    if nom_rue == "Avenue 23e":
+        nom_rue = "AVENUE 22E"
     return nom_rue
 
 
@@ -151,6 +189,7 @@ def main():
     # outShapefile = r"H:\shapefile\TEST\bat_TEST_RESULT.shp"
 
     inShapefile = r"H:\shapefile\Zones_extraction\SJSR\SJSR_Sabrevois_zone_risk_verif.shp"
+    #inShapefile = r"H:\shapefile\TEST\testnom.shp"
     outShapefile = r"H:\shapefile\TEST\SJSR_SabrevoisBAT.shp"
 
     geocode_shapefile(inShapefile, outShapefile)
