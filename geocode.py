@@ -188,10 +188,11 @@ def main():
     # inShapefile = r"H:\shapefile\TEST\bat_TEST.shp"
     # outShapefile = r"H:\shapefile\TEST\bat_TEST_RESULT.shp"
 
-    inShapefile = r"H:\shapefile\Zones_extraction\SJSR\SJSR_Sabrevois_zone_risk_verif.shp"
-    #inShapefile = r"H:\shapefile\TEST\testnom.shp"
-    outShapefile = r"H:\shapefile\TEST\SJSR_SabrevoisBAT.shp"
+    # inShapefile = r"C:\Users\bruntoca\Documents\GitHub\Building_extraction\output\building_footprint.shp"
+    # outShapefile = r"C:\Users\bruntoca\Documents\GitHub\Building_extraction\output\building_footprint_geocode.shp"
 
+    inShapefile = r"Z:\Outaouais\PetiteNation\SHP\MS_PetiteNation_split.shp"
+    outShapefile = r"Z:\Outaouais\PetiteNation\SHP\batiments_PetiteNation.shp"
     geocode_shapefile(inShapefile, outShapefile)
 
     print("##############################")

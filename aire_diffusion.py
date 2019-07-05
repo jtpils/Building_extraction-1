@@ -18,65 +18,67 @@ from utils import *
 def calc_taux(p_annee, p_aire_diffusion):
     url = "https://www12.statcan.gc.ca/census-recensement/{}/dp-pd/prof/details/" \
           "download-telecharger/current-actuelle.cfm?Lang=F&Geo1=DA&Code1={}&Geo2=" \
-          "CSD&Code2=2456060&B1=All&TYPE=CSV".format(p_annee, p_aire_diffusion)
+          "CSD&Code2=2456060&B1=All&FILETYPE=CSV".format(p_annee, p_aire_diffusion)
+    # print url
+    # url = "https://www12.statcan.gc.ca/census-recensement/2016/dp-pd/prof/details/download-telecharger/current-actuelle.cfm?Lang=F&Geo1=CSD&Code1=2480055&Geo2=PR&Code2=24&B1=All&type=0&FILETYPE=CSV"
 
+    print url
     response = urllib2.urlopen(url)
     df = pd.read_csv(response)
-    print url
 
     # T_demenage
-    if math.isnan(float(df.index[2231][3])):
+    if math.isnan(float(df.index[2233][3])):
         mob_demenage = 0
     else:
-        mob_demenage = int(df.index[2231][3])
-    if math.isnan(float(df.index[2229][3])):
+        mob_demenage = int(df.index[2233][3])
+    if math.isnan(float(df.index[2231][3])):
         T_demenage = 0
     else:
-        mob_tot = int(df.index[2229][3])
+        mob_tot = int(df.index[2231][3])
         T_demenage = mob_demenage / mob_tot * 100
     print "Taux de personnes ayant déménagé: {} %".format(T_demenage)
 
     # T_locatair
-    if math.isnan(float(df.index[1618][3])):
+    if math.isnan(float(df.index[1620][3])):
         locataire = 0
     else:
-        locataire = int(df.index[1618][3])
-    if math.isnan(float(df.index[1616][3])):
+        locataire = int(df.index[1620][3])
+    if math.isnan(float(df.index[1618][3])):
         T_locatair = 0
     else:
-        menage_prive_tot = int(df.index[1616][3])
+        menage_prive_tot = int(df.index[1618][3])
         T_locatair = locataire / menage_prive_tot * 100
     print "Taux de ménage occupé par un locataire: {} %".format(T_locatair)
 
     # T_ages
-    if math.isnan(float(df.index[24][3])):
+    if math.isnan(float(df.index[25][3])):
         pop_65plus = 0
     else:
-        pop_65plus = int(df.index[24][3])
-    if math.isnan(float(df.index[8][3])):
+        pop_65plus = int(df.index[25][3])
+    if math.isnan(float(df.index[9][3])):
         T_ages = 0
     else:
-        pop_tot = int(df.index[8][3])
+        pop_tot = int(df.index[9][3])
         T_ages = pop_65plus / pop_tot * 100
     print "Taux de personnes agées: {} %".format(T_ages)
 
     # T_seules
-    if math.isnan(float(df.index[51][3])):
+    if math.isnan(float(df.index[53][3])):
         une_personne = 0
     else:
-        une_personne = int(df.index[51][3])
-    if math.isnan(float(df.index[50][3])):
+        une_personne = int(df.index[53][3])
+    if math.isnan(float(df.index[52][3])):
         T_seules = 0
     else:
-        menage_tot = int(df.index[50][3])
+        menage_tot = int(df.index[52][3])
         T_seules = une_personne / menage_tot * 100
     print "Taux de personnes seules: {} %".format(T_seules)
 
     # T_faibleRe
-    if math.isnan(float(df.index[866][3])):
+    if math.isnan(float(df.index[868][3])):
         T_faibleRe = 0
     else:
-        T_faibleRe = float(df.index[866][3])
+        T_faibleRe = float(df.index[868][3])
     print "Taux de faible revenu: {} %".format(T_faibleRe)
 
     return T_demenage, T_locatair, T_ages, T_seules, T_faibleRe
@@ -84,8 +86,10 @@ def calc_taux(p_annee, p_aire_diffusion):
 
 def add_taux(in_shapefile):
     cwd = os.getcwd()
-    AD_taux = cwd + r"\output\AD_avecTaux.shp"
-
+    idx1 = in_shapefile.find("AD_")
+    idx2 = in_shapefile.find(".shp")
+    munic = in_shapefile[idx1 + 3:idx2]
+    AD_taux = cwd + r"\output\AD_avecTaux_{}.shp".format(munic)
     # make a copy of the input shapefile
     if os.path.exists(AD_taux):
         arcpy.Delete_management(AD_taux)
@@ -152,13 +156,13 @@ def add_taux(in_shapefile):
         j = feature.GetFieldIndex("T_faibleRe")
         feature.SetField(j, T_faibleRe)
         layer.SetFeature(feature)
-
+    print T_faibleRe_list
     T_demenage_stats = calc_quantile(T_demenage_list)
     T_locatair_stats = calc_quantile(T_locatair_list)
     T_ages_stats = calc_quantile(T_ages_list)
     T_seules_stats = calc_quantile(T_seules_list)
     T_faibleRe_stats = calc_quantile(T_faibleRe_list)
-
+    print T_faibleRe_stats
     for i in range(len(layer)):
         feature = layer.GetFeature(i)
 
@@ -212,13 +216,17 @@ def calc_vuln(valeur, stats):
 
 
 if __name__ == "__main__":
+    # Le shapefile en entrée doit contenir toutes les aires de diffusion pour une seule municipalité
+    # Exporter les tous les polygones ayant le même SDRNOM à partir de la couche lad_000a16a_f.shp
+    # (dans H:\shapefile\Aires_diffusion) sous un nouveau shapefile en conservant les champs de la
+    # table attributaire. Faire chaque municipalité séparément pour ensuite faire un "merge" sur les
+    # l'ensemble des shapefile résultants.
 
-    in_shp = "H:\shapefile\Aires_diffusion\BV_complet\AD_Beloeil.shp"
+    in_shp = "H:\shapefile\Aires_diffusion\PetiteNation\AD_Cheneville.shp"
+    # in_shp = "Z:\Deux_montagnes\AD_SteMarthe.shp"
     add_taux(in_shp)
 
     print("##############################")
     print("La couche des aires de diffusion avec taux est complété!")
     print(elapsed_time())
     print("##############################")
-
-
