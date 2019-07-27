@@ -121,7 +121,7 @@ def modif_nom_rue(nom_rue):
     if nom_rue[-1] == "E":
         nom_rue = nom_rue + "st"
     if nom_rue[-1] == "O":
-        nom_rue = nom_rue + "est"
+        nom_rue = nom_rue + "uest"
     if nom_rue.find("St-") != -1:
         i = nom_rue.find("St-")
         nom_rue = nom_rue[0:i] + "Saint-" + nom_rue[i+3:]
@@ -191,8 +191,8 @@ def main():
     # inShapefile = r"C:\Users\bruntoca\Documents\GitHub\Building_extraction\output\building_footprint.shp"
     # outShapefile = r"C:\Users\bruntoca\Documents\GitHub\Building_extraction\output\building_footprint_geocode.shp"
 
-    inShapefile = r"Z:\Outaouais\PetiteNation\SHP\MS_PetiteNation_split.shp"
-    outShapefile = r"Z:\Outaouais\PetiteNation\SHP\batiments_PetiteNation.shp"
+    inShapefile = r"Z:\Outaouais\DuLievre\SHP\Google_DuLievre.shp"
+    outShapefile = r"Z:\Outaouais\DuLievre\SHP\Google_DuLievre_geocode.shp"
     geocode_shapefile(inShapefile, outShapefile)
 
     print("##############################")

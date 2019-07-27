@@ -6,9 +6,7 @@
 # Project : GARI
 # Description : Ajouter de l'information à la couche de bâtiments (Valeur_bat, Nb_etages, Pres_ss1, Zrc) au hasard pour demo
 # ---------------------------------------------------------------------------
-
 from utils import *
-import pandas as pd
 import geopandas as gpd
 import random
 
@@ -35,6 +33,7 @@ def get_vulnerabilite(in_bat, in_AD):
         for i, polygon in enumerate(polygons):
             if polygon.contains(centroid):
                 ADIDU_liste.append(str(AD.loc[i, "ADIDU"]))
+                #Tot_vul_liste.append(AD.loc[i, "TOT_VUL"])
                 Tot_vul_liste.append(AD.loc[i, "Tot_vul"])
     return ADIDU_liste, Tot_vul_liste
 
@@ -84,10 +83,9 @@ def add_data(inMNT, inAD):
     # serie_valeur_bat = info['Valeur_bat']
 
     zs = zonal_stats(bat_shp, inMNT)
-    print(zs)
-    print(len(zs))
+    # print(zs)
+    # print(len(zs))
     ADIDU, Tot_vul = get_vulnerabilite(bat_shp, inAD)
-
     for i in range(len(layer)):
         feature = layer.GetFeature(i)
 
@@ -127,9 +125,17 @@ def main():
     # inAD = r"Z:\Deux_montagnes\AD_avecTaux_Hudson.shp"
     # inMNT = r"Z:\Deux_montagnes\MNT.tif"
     # inBat = r"Z:\Deux_montagnes\DeuxMontagnes_bat_geocode_TEST.shp"
-    inAD = r"Z:\Deux_montagnes\AD_avecTaux_SteMarthe.shp"
-    inMNT = r"Z:\Deux_montagnes\MNT_reproj.tif"
-    inBat = r"Z:\Deux_montagnes\DeuxMontagnes_bat_geocode_Marthe.shp"
+    # inAD = r"Z:\Deux_montagnes\AD_avecTaux_SteMarthe.shp"
+    # inMNT = r"Z:\Deux_montagnes\MNT_reproj.tif"
+    # inBat = r"Z:\Deux_montagnes\DeuxMontagnes_bat_geocode_Marthe.shp"
+
+    inAD = r"Z:\Outaouais\DuLievre\SHP\AD_avecTaux_DuLievre.shp"
+    inMNT = r"Z:\Outaouais\DuLievre\MNT\MNT_DuLievre.tif"
+    inBat = r"Z:\Outaouais\DuLievre\SHP\MS_Google_DuLievre_geocode.shp"
+
+    # inAD = r"Z:\Outaouais\PetiteNation\SHP\AD_avecTaux_PetiteNation.shp"
+    # inMNT = r"Z:\Outaouais\PetiteNation\MNT\MNT_PetiteNation.tif"
+    # inBat = r"Z:\Outaouais\PetiteNation\SHP\MS_Google_PetiteNation_split_geocode.shp"
 
     outBat = cwd + "\output\Batiments.shp"
     outCen = cwd + "\output\Centroides.shp"

@@ -156,13 +156,13 @@ def add_taux(in_shapefile):
         j = feature.GetFieldIndex("T_faibleRe")
         feature.SetField(j, T_faibleRe)
         layer.SetFeature(feature)
-    print T_faibleRe_list
+
     T_demenage_stats = calc_quantile(T_demenage_list)
     T_locatair_stats = calc_quantile(T_locatair_list)
     T_ages_stats = calc_quantile(T_ages_list)
     T_seules_stats = calc_quantile(T_seules_list)
     T_faibleRe_stats = calc_quantile(T_faibleRe_list)
-    print T_faibleRe_stats
+
     for i in range(len(layer)):
         feature = layer.GetFeature(i)
 
@@ -222,7 +222,7 @@ if __name__ == "__main__":
     # table attributaire. Faire chaque municipalité séparément pour ensuite faire un "merge" sur les
     # l'ensemble des shapefile résultants.
 
-    in_shp = "H:\shapefile\Aires_diffusion\PetiteNation\AD_Cheneville.shp"
+    in_shp = "H:\shapefile\Aires_diffusion\DuLievre\AD_ValDesMonts.shp"
     # in_shp = "Z:\Deux_montagnes\AD_SteMarthe.shp"
     add_taux(in_shp)
 

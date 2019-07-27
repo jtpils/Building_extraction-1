@@ -237,13 +237,6 @@ def image2features(img_bat, features, lat, lon):
         features.append(
             arcpy.Polygon(
                 arcpy.Array([arcpy.Point(*coords) for coords in polygone])))
-        print("-----------------------------------")
-        print(polygone[0][0])
-        print(type(polygone[0][0]))
-        print(polygone[0])
-        print(type(polygone[0]))
-        print(polygone)
-        print(type(polygone))
 
 
 def shapefile_creator(features, n, wkid):

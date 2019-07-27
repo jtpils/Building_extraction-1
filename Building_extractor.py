@@ -214,7 +214,8 @@ def main():
     # shapefile_contour_path = r"H:\shapefile\zone_risque\test.shp"
     # building_extractor(shapefile_contour_path)
 
-    shapefile_contour_path = r"H:\GeoSapiens\Terrebonne\Secteur_demo.shp"
+    # shapefile_contour_path = r"H:\GeoSapiens\Terrebonne\Secteur_demo.shp"
+    shapefile_contour_path = r"Z:\Outaouais\DuLievre\SHP\buffer_DuLievre.shp"
     building_extractor(shapefile_contour_path)
 
     # shapefile_contour_path = "H:\shapefile\Zones_extraction\SJSR\Sabrevois_munic.shp"
